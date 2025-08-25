@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function HeroSection() {
   return (
-    <section className="relative h-96 bg-cover bg-center bg-no-repeat" style={{backgroundImage: 'url(/images/hero.jpeg)'}}>
+    <section className="relative h-[28rem] bg-cover bg-center bg-no-repeat" style={{backgroundImage: 'url(/images/hero.jpeg)'}}>
       <div className="absolute inset-0 bg-[#003867] bg-opacity-60"></div>
       <div className="relative z-10 flex items-center justify-center h-full">
         <div className="text-center text-white px-4">
