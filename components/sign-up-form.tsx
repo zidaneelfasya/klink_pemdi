@@ -23,6 +23,8 @@ export function SignUpForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -33,24 +35,64 @@ export function SignUpForm({
     setIsLoading(true);
     setError(null);
 
+    // Validasi
     if (password !== repeatPassword) {
       setError("Passwords do not match");
       setIsLoading(false);
       return;
     }
 
+    if (!fullName.trim()) {
+      setError("Full name is required");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const { error } = await supabase.auth.signUp({
+      // 1. Buat user dengan auth.signUp
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/protected`,
+          data: {
+            full_name: fullName,
+            phone: phone,
+          }
         },
       });
-      if (error) throw error;
+      
+      if (authError) throw authError;
+
+      // 2. Jika user berhasil dibuat, simpan data tambahan ke tabel profiles
+      if (authData.user) {
+        try {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([
+              { 
+                id: authData.user.id, 
+                full_name: fullName, 
+                phone: phone,
+                email: email
+              }
+            ]);
+            
+          if (profileError) {
+            console.warn("Profile creation failed, but user was created. Error:", profileError);
+            // Tidak perlu throw error di sini karena user sudah berhasil dibuat
+            // Data sudah tersimpan di user_metadata
+          }
+        } catch (profileError) {
+          console.warn("Profile creation failed, but user was created. Error:", profileError);
+          // Lanjutkan meskipun pembuatan profil gagal
+        }
+      }
+
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      console.error("Signup error:", error);
+      setError(error instanceof Error ? error.message : "An error occurred during registration");
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +108,20 @@ export function SignUpForm({
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
+              {/* Field Nama Lengkap */}
+              <div className="grid gap-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="John Doe"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
+              
+              {/* Field Email */}
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -77,6 +133,19 @@ export function SignUpForm({
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
+              
+              {/* Field Telepon */}
+              <div className="grid gap-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+62 812-3456-7890"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+              
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
