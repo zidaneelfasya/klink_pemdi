@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export function FeaturesContentSection() {
 	return (
@@ -27,6 +28,28 @@ export function FeaturesContentSection() {
 					<h3 className="text-[clamp(1.5rem,5vw,2.5rem)] font-bold text-gray-900 leading-tight">
 						Setiap Saat dan Setiap Waktu
 					</h3>
+				</div>
+
+				{/* Feature Buttons */}
+				<div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 md:mb-16 px-4">
+					<Link 
+						href="/chatbot"
+						className="group bg-[#003867] text-white px-8 py-4 rounded-lg font-semibold hover:transition-all duration-300 hover:scale-105 hover:shadow-lg flex items-center gap-3 w-[240px] h-[60px] justify-center"
+					>
+						<svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+						</svg>
+						Coba Chatbot
+					</Link>
+					<Link 
+						href="/konsultasi"
+						className="group bg-white text-[#003867] px-8 py-4 rounded-lg font-semibold border-2 border-[#003867] hover:bg-[#003867] hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg flex items-center gap-3 w-[240px] h-[60px] justify-center"
+					>
+						<svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z"/>
+						</svg>
+						Mulai Konsultasi
+					</Link>
 				</div>
 
 				{/* Features Grid */}
