@@ -1,71 +1,30 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
+## 📌 Deskripsi
+<!-- Jelaskan perubahan apa yang kamu lakukan di PR ini -->
+judul atau deskripsi pekerjaan yang dilakukan
 
-export default function LoginPage() {
-  return (
-    <div className="min-h-screen bg-black flex">
-      {/* Left Side - Gradient Card */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <Card className="w-full max-w-md p-8 bg-gradient-to-br from-[#050B12] via-[#0059CE] via-[#0147A3] via-[#2785FF] to-[#4098FF] border-0 rounded-3xl">
-          <div className="text-center text-white space-y-6">
-            <h1 className="text-3xl font-bold text-balance">Klinik Pemerintah Digital</h1>
-            <p className="text-lg text-white/90 text-balance">
-              Ikuti langkah-langkah mudah berikut untuk mulai menggunakan layanan digital kami:
-            </p>
+## 📝 Tipe Perubahan
+<!-- Pilih satu atau lebih dengan menghapus tanda komentar -->
+- [ ] Fitur Baru 🚀
+- [ ] Perbaikan Bug 🐛
+- [ ] Perubahan Dokumentasi 📚
+- [ ] Refactor Kode 🧹
+- [ ] Perubahan Konfigurasi ⚙️
+- [ ] Lainnya: ....
 
-            <div className="space-y-4 mt-8">
-              <Button
-                variant="secondary"
-                className="w-full bg-white text-black hover:bg-white/90 rounded-full py-6 text-base font-medium"
-              >
-                1. dasdasdasdasdsa
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full bg-white text-black hover:bg-white/90 rounded-full py-6 text-base font-medium"
-              >
-                1. dasdasdasdasdsa
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full bg-white text-black hover:bg-white/90 rounded-full py-6 text-base font-medium"
-              >
-                1. dasdasdasdasdsa
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </div>
+## ✅ Checklist
+<!-- Pastikan semuanya sudah dicek sebelum membuat PR -->
+- [ ] Kode sudah diuji dan berfungsi sesuai harapan
+- [ ] Tidak ada error atau bug yang tertinggal
+- [ ] Sudah mengikuti style guide dan konvensi penamaan
+- [ ] PR ini mengarah ke branch yang benar (misal: `main`, `develop`)
+- [ ] Dokumentasi telah diperbarui (jika perlu)
 
-      {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-white text-balance">Selamat Datang Kembali</h2>
-            <p className="text-gray-400">
-              Belum Punya Akun? <span className="text-blue-400 cursor-pointer hover:underline">Daftar</span>
-            </p>
-          </div>
 
-          <div className="space-y-4">
-            <Input
-              type="email"
-              placeholder="email address"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 rounded-xl py-6 text-base"
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 rounded-xl py-6 text-base"
-            />
-          </div>
+## 📸 Screenshot (Opsional)
+<!-- Tambahkan screenshot jika perubahan berhubungan dengan UI -->
+![Tampilan Baru](link-gambar)
 
-          <Button className="w-full bg-white text-black hover:bg-white/90 rounded-xl py-6 text-base font-medium">
-            Masuk
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
+## 📢 Catatan Tambahan
+<!-- Tambahkan hal-hal penting atau konteks tambahan lainnya -->
+- ...
+- Pastikan semua route dan halaman sudah sesuai dengan kebutuhan aplikasi admin.
