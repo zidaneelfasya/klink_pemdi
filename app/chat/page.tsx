@@ -166,24 +166,7 @@ export default function ChatInterface() {
           </div>
         </div>
 
-        <div className="p-4 bg-white border-b border-gray-200 flex-shrink-0">
-          <div className="relative">
-            <Textarea
-              placeholder="Isi Pertanyaan Anda Disini..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="min-h-[80px] resize-none border-gray-200 pr-12"
-            />
-            <Button
-              onClick={handleSubmit}
-              size="sm"
-              className="absolute bottom-2 right-2 h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.map((msg) => (
@@ -221,6 +204,24 @@ export default function ChatInterface() {
               )}
             </div>
           ))}
+        </div>
+        <div className="p-4 bg-white border-b border-t border-gray-200 flex-shrink-0">
+          <div className="relative">
+            <Textarea
+              placeholder="Isi Pertanyaan Anda Disini..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="min-h-[80px] resize-none border-gray- pr-12"
+            />
+            <Button
+              onClick={handleSubmit}
+              size="sm"
+              className="absolute bottom-2 right-2 h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
