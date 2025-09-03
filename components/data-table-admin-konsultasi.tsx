@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -100,6 +101,8 @@ import {
   TagIcon,
   FileTextIcon,
   Building2Icon,
+  XIcon,
+  CheckIcon,
 } from "lucide-react"
 
 export const konsultasiSchema = z.object({
@@ -496,10 +499,172 @@ function DragHandle({ id }: { id: number }) {
       size="icon"
       className="size-7 text-muted-foreground hover:bg-transparent"
     >
-      <GripVerticalIcon className="size-3 text-muted-foreground" />
+      {/* <GripVerticalIcon className="size-3 text-muted-foreground" /> */}
       <span className="sr-only">Drag to reorder</span>
     </Button>
   )
+}
+
+// Solusi Editor Component
+function SolusiEditor({ 
+  konsultasiId, 
+  currentSolusi, 
+  onUpdate 
+}: { 
+  konsultasiId: number;
+  currentSolusi: string | null;
+  onUpdate: (newSolusi: string | null) => void;
+}) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editValue, setEditValue] = React.useState(currentSolusi || '');
+  const [updating, setUpdating] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  const solusiText = currentSolusi;
+  const shouldTruncate = solusiText && solusiText.length > 100;
+
+  const handleSave = async () => {
+    if (editValue === currentSolusi) {
+      setIsEditing(false);
+      return;
+    }
+
+    setUpdating(true);
+    const loadingToast = toast.loading("Menyimpan solusi...");
+
+    try {
+      const response = await fetch('/api/v1/konsultasi', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: konsultasiId,
+          solusi: editValue || null,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update solusi');
+      
+      const result = await response.json();
+      if (result.success) {
+        onUpdate(editValue || null);
+        setIsEditing(false);
+        
+        toast.dismiss(loadingToast);
+        toast.success("Solusi berhasil disimpan!", {
+          description: `Konsultasi #${konsultasiId} telah diperbarui`,
+          duration: 4000,
+        });
+      } else {
+        throw new Error(result.message || 'Update failed');
+      }
+    } catch (error) {
+      console.error('Error updating solusi:', error);
+      
+      toast.dismiss(loadingToast);
+      toast.error('Gagal menyimpan solusi', {
+        description: error instanceof Error ? error.message : 'Terjadi kesalahan saat menyimpan solusi',
+        duration: 4000,
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditValue(currentSolusi || '');
+    setIsEditing(false);
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setIsExpanded(true);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="max-w-sm w-full space-y-2">
+        <Textarea
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          placeholder="Masukkan solusi konsultasi..."
+          className="min-h-[120px] text-sm resize-none"
+          disabled={updating}
+        />
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={updating}
+            className="h-7 px-3"
+          >
+            {updating ? (
+              <LoaderIcon className="size-3 animate-spin" />
+            ) : (
+              <CheckIcon className="size-3" />
+            )}
+            Simpan
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={updating}
+            className="h-7 px-3"
+          >
+            <XIcon className="size-3" />
+            Batal
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-sm w-full">
+      {solusiText ? (
+        <div className="flex flex-col items-start gap-2">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            onDoubleClick={handleEdit}
+            className="text-left hover:bg-muted/30 rounded px-2 py-1 transition-colors w-full group"
+            title="Klik dua kali untuk edit"
+          >
+            <div 
+              className={`text-sm text-muted-foreground leading-relaxed transition-all duration-200 ${
+                isExpanded 
+                  ? 'whitespace-pre-wrap break-words' 
+                  : 'line-clamp-3'
+              }`}
+            >
+              {solusiText}
+            </div>
+
+          </button>
+          {isExpanded && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleEdit}
+              className="h-7 px-2 mt-1 flex-shrink-0"
+            >
+              <FileTextIcon className="size-3" />
+              Edit
+            </Button>
+          )}
+        </div>
+      ) : (
+        <button
+          onClick={handleEdit}
+          className="text-muted-foreground text-sm flex items-center gap-1 hover:text-foreground transition-colors"
+        >
+          <FileTextIcon className="size-3" />
+          Belum ada solusi - Klik untuk tambah
+        </button>
+      )}
+    </div>
+  );
 }
 
 // Status color mapping
@@ -551,24 +716,24 @@ const columns: ColumnDef<KonsultasiData>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
+      <div className="">
+        {/* <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
-        />
+        /> */}
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
+      <div className="">
+        {/* <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
-        />
+        /> */}
       </div>
     ),
     enableSorting: false,
@@ -632,26 +797,44 @@ const columns: ColumnDef<KonsultasiData>[] = [
   {
     accessorKey: "solusi",
     header: "Solusi",
-    cell: ({ row }) => (
-      <div className="max-w-xs">
-        {row.original.solusi ? (
-          <div className="flex items-start gap-2">
-            {/* <FileTextIcon className="size-3 mt-0.5 text-muted-foreground flex-shrink-0" /> */}
-            <span className="text-sm text-muted-foreground truncate">
-              {row.original.solusi.length > 100 
-                ? `${row.original.solusi.substring(0, 100)}...` 
-                : row.original.solusi
-              }
+    cell: ({ row }) => {
+      const [isExpanded, setIsExpanded] = React.useState(false);
+      const solusiText = row.original.solusi;
+      const shouldTruncate = solusiText && solusiText.length > 100;
+
+      return (
+        <div className="max-w-sm w-full">
+          {solusiText ? (
+            <div className="flex flex-col items-start gap-2">
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-left hover:bg-muted/30 rounded px-2 py-1 transition-colors w-full group"
+              >
+                <div 
+                  className={`text-sm text-muted-foreground leading-relaxed transition-all duration-200 ${
+                    isExpanded 
+                      ? 'whitespace-pre-wrap break-words' 
+                      : 'line-clamp-3'
+                  }`}
+                >
+                  {solusiText}
+                </div>
+                {shouldTruncate && (
+                  <div className="text-xs text-blue-600 group-hover:text-blue-800 mt-2 font-medium">
+                    {isExpanded ? '↑ Sembunyikan' : '↓ Lihat selengkapnya'}
+                  </div>
+                )}
+              </button>
+            </div>
+          ) : (
+            <span className="text-muted-foreground text-sm flex items-center gap-1">
+              <FileTextIcon className="size-3" />
+              Belum ada solusi
             </span>
-          </div>
-        ) : (
-          <span className="text-muted-foreground text-sm flex items-center gap-1">
-            <FileTextIcon className="size-3" />
-            Belum ada solusi
-          </span>
-        )}
-      </div>
-    ),
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "units",
@@ -731,7 +914,28 @@ const createColumns = (setData: React.Dispatch<React.SetStateAction<KonsultasiDa
       />
     ),
   },
-  ...columns.slice(5), // skor_indeks_spbe, solusi, units
+  ...columns.slice(5, 6), // skor_indeks_spbe
+  {
+    accessorKey: "solusi",
+    header: "Solusi",
+    cell: ({ row }) => (
+      <SolusiEditor 
+        konsultasiId={row.original.id}
+        currentSolusi={row.original.solusi}
+        onUpdate={(newSolusi) => {
+          // Update local data state
+          setData(prevData => 
+            prevData.map(item => 
+              item.id === row.original.id 
+                ? { ...item, solusi: newSolusi }
+                : item
+            )
+          )
+        }}
+      />
+    ),
+  },
+  ...columns.slice(7), // units
   {
     accessorKey: "pic_name",
     header: "PIC",
@@ -798,17 +1002,17 @@ function DraggableRow({ row }: { row: Row<KonsultasiData> }) {
 
   return (
     <TableRow
-      data-state={row.getIsSelected() && "selected"}
-      data-dragging={isDragging}
+      // data-state={row.getIsSelected() && "selected"}
+      // data-dragging={isDragging}
       ref={setNodeRef}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80 align-top"
       style={{
         transform: CSS.Transform.toString(transform),
         transition: transition,
       }}
     >
       {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>
+        <TableCell key={cell.id} className="align-top">
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </TableCell>
       ))}
