@@ -44,7 +44,11 @@ export async function GET(request: NextRequest) {
       `);
 
     // Apply sorting
-    query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+    // query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+    query = query.order(sortBy, { 
+      ascending: sortOrder === 'asc',
+      nullsFirst: false // Ini akan menempatkan nilai NULL di akhir
+    });
 
     // Apply pagination jika ada
     if (limit) {
