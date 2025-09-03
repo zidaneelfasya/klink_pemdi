@@ -24,3 +24,118 @@ create table messages (
     created_at timestamp with time zone default now(),
     updated_at timestamp with time zone default now()
 );
+
+-- untuk admin klinik pemdi
+-- Buat ENUM untuk kategori
+
+CREATE TYPE kategori_enum AS ENUM ('tata kelola', 'infrastruktur', 'aplikasi', 'keamanan informasi', 'SDM');
+
+-- Buat ENUM untuk status
+CREATE TYPE status_enum AS ENUM ('new', 'on process', 'ready to send', 'konsultasi zoom', 'done', 'FU pertanyaan', 'cancel');
+
+-- Buat tabel untuk PIC (Person In Charge)
+CREATE TABLE pic_list (
+    id SERIAL PRIMARY KEY,
+    nama_pic TEXT UNIQUE NOT NULL
+);
+
+-- Insert data PIC
+INSERT INTO pic_list (nama_pic) VALUES
+('Safira'),
+('Morris'),
+('Allysa'),
+('Babas'),
+('Ana'),
+('Rossi'),
+('Hamid');
+
+-- Buat tabel utama untuk menyimpan respons konsultasi
+CREATE TABLE konsultasi_spbe (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP,
+    nama_lengkap TEXT,
+    nomor_telepon TEXT,
+    instansi_organisasi TEXT,
+    asal_kota_kabupaten TEXT,
+    asal_provinsi TEXT,
+    uraian_kebutuhan_konsultasi TEXT,
+    skor_indeks_spbe NUMERIC,
+    kondisi_implementasi_spbe TEXT,
+    fokus_tujuan TEXT,
+    mekanisme_konsultasi TEXT,
+    surat_permohonan TEXT,
+    butuh_konsultasi_lanjut BOOLEAN,
+    status status_enum,
+    pic_id INTEGER REFERENCES pic_list(id),
+    solusi TEXT,
+    kategori kategori_enum,
+    ticket TEXT, -- Field ticket yang ditambahkan
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Buat tabel untuk unit penanggung jawab
+CREATE TABLE unit_penanggungjawab (
+    id SERIAL PRIMARY KEY,
+    nama_unit TEXT UNIQUE NOT NULL,
+    pic_id INTEGER REFERENCES pic_list(id)
+);
+
+-- Insert data unit penanggung jawab
+INSERT INTO unit_penanggungjawab (nama_unit, pic_id) VALUES
+('Tim Akselerasi Pemerintah Daerah', (SELECT id FROM pic_list WHERE nama_pic = 'Safira')),
+('Tim Smart City', (SELECT id FROM pic_list WHERE nama_pic = 'Dina')),
+('Tim Desa dan Konkuren', (SELECT id FROM pic_list WHERE nama_pic = 'Rian')),
+('Direktorat Aplikasi Pemerintah', (SELECT id FROM pic_list WHERE nama_pic = 'Sofi')),
+('Direktorat Infrastruktur Pemerintah', (SELECT id FROM pic_list WHERE nama_pic = 'Nayaka')),
+('Direktorat Strajak', (SELECT id FROM pic_list WHERE nama_pic = 'Yuki')),
+('BAKTI', NULL),
+('Ditjen Infrastruktur Digital', (SELECT id FROM pic_list WHERE nama_pic = 'Hilman')),
+('BSSN', (SELECT id FROM pic_list WHERE nama_pic = 'Ivan Bashofi')),
+('KemenPANRB', (SELECT id FROM pic_list WHERE nama_pic = 'Iksan'));
+
+-- Buat tabel untuk menghubungkan konsultasi dengan unit
+CREATE TABLE konsultasi_unit (
+    konsultasi_id INTEGER REFERENCES konsultasi_spbe(id) ON DELETE CASCADE,
+    unit_id INTEGER REFERENCES unit_penanggungjawab(id) ON DELETE CASCADE,
+    PRIMARY KEY (konsultasi_id, unit_id)
+);
+
+-- Buat tabel untuk topik konsultasi
+CREATE TABLE topik_konsultasi (
+    id SERIAL PRIMARY KEY,
+    nama_topik TEXT UNIQUE NOT NULL
+);
+
+-- Insert data topik konsultasi
+INSERT INTO topik_konsultasi (nama_topik) VALUES
+('Arsitektur, Tata Kelola, Regulasi, dan Kebijakan'),
+('Aplikasi SPBE/Pemerintah Digital'),
+('Infrastruktur SPBE/Pemerintah Digital'),
+('Akses Internet'),
+('Manajemen Data dan Informasi'),
+('Keamanan Data'),
+('Layanan Digital Pemerintah'),
+('Pengelolaan Sumber Daya Manusia SPBE/Pemerintah Digital'),
+('Pengukuran dan Evaluasi SPBE/Pemerintah Digital');
+
+-- Buat tabel untuk menghubungkan konsultasi dengan topik
+CREATE TABLE konsultasi_topik (
+    konsultasi_id INTEGER REFERENCES konsultasi_spbe(id) ON DELETE CASCADE,
+    topik_id INTEGER REFERENCES topik_konsultasi(id) ON DELETE CASCADE,
+    PRIMARY KEY (konsultasi_id, topik_id)
+);
+
+-- Trigger untuk update timestamp otomatis
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_konsultasi_updated_at
+    BEFORE UPDATE ON konsultasi_spbe
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column(); 
