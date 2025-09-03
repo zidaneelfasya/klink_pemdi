@@ -108,8 +108,12 @@ export function Header() {
   useEffect(() => {
     // Get initial user
     const getUser = async () => {
+  //     const { data } = await supabase.auth.getClaims();
+
+  // const user = data?.claims;
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      console.log("user:",user);
       
       if (user) {
         // Fetch user profile data
@@ -119,7 +123,9 @@ export function Header() {
           .eq("id", user.id)
           .single();
         setUserProfile(profile);
+        console.log(profile)
       }
+      
       setLoading(false);
     };
 
@@ -172,10 +178,10 @@ export function Header() {
     return '/profile';
   };
 
+  
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
-
   return (
     <>
       <motion.header 
