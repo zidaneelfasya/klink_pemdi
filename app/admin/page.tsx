@@ -1,7 +1,6 @@
 
-import data from "./data.json";
-import { DataTableAdmin } from "@/components/data-table-admin";
+import { DataTableAdminKonsultasi } from "@/components/data-table-admin-konsultasi";
 
 export default function AdminPage() {
-	return <DataTableAdmin data={data} />;
+	return <DataTableAdminKonsultasi data={[]} />;
 }
