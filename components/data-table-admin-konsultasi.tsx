@@ -1772,7 +1772,7 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
           {item.uraian_kebutuhan_konsultasi && (
             <div className="space-y-4">
               <h4 className="font-semibold text-sm">Uraian Kebutuhan</h4>
-              <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+              <div className="text-sm text-muted-foreground bg-muted p-3 rounded">
                 {item.uraian_kebutuhan_konsultasi}
               </div>
             </div>
@@ -1832,7 +1832,7 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
         </div>
         
         <SheetFooter className="mt-auto flex gap-2 sm:flex-col sm:space-x-0">
-          <Button className="w-full">Edit Konsultasi</Button>
+          {/* <Button className="w-full">Edit Konsultasi</Button> */}
           <SheetClose asChild>
             <Button variant="outline" className="w-full">
               Tutup
