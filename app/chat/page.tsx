@@ -15,11 +15,11 @@ export default function ChatInterface() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null)
   const [message, setMessage] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<unknown>(null)
 
   // Custom hooks for data management
   const { chatHistory, loading: historyLoading, error: historyError, refreshHistory } = useChatHistory()
-  const { messages, threadInfo, loading: messagesLoading, error: messagesError, sending, sendMessage, refreshMessages } = useChatMessages(selectedChat)
+  const { messages, threadInfo, loading: messagesLoading, error: messagesError, sending, sendMessage } = useChatMessages(selectedChat)
   const { createThread, creating } = useCreateThread()
 
   const supabase = createClient()
