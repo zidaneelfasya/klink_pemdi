@@ -2,6 +2,7 @@
 
 import React from "react"
 import { z } from "zod"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -95,15 +96,19 @@ import {
   ClockIcon,
   ColumnsIcon,
   FileTextIcon,
+  FilterIcon,
+  FilterXIcon,
   GripVerticalIcon,
   LoaderIcon,
   MoreVerticalIcon,
   PlusIcon,
   RefreshCcw,
+  SearchIcon,
   TagIcon,
   UserIcon,
   XIcon,
 } from "lucide-react"
+import { useData } from "@/app/context/data-context"
 
 export const konsultasiSchema = z.object({
   id: z.number(),
@@ -132,6 +137,307 @@ export const konsultasiSchema = z.object({
 
 type KonsultasiData = z.infer<typeof konsultasiSchema>
 
+// Filter Components
+interface FilterOption {
+  value: string
+  label: string
+  icon?: React.ReactNode
+}
+
+// Search Input Component
+function SearchFilter({ 
+  globalFilter, 
+  setGlobalFilter 
+}: { 
+  globalFilter: string;
+  setGlobalFilter: (value: string) => void;
+}) {
+  const [localValue, setLocalValue] = React.useState(globalFilter)
+
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setGlobalFilter(localValue)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [localValue, setGlobalFilter])
+
+  // Update local value when globalFilter changes externally
+  React.useEffect(() => {
+    setLocalValue(globalFilter)
+  }, [globalFilter])
+
+  return (
+    <div className="relative">
+      <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4" />
+      <Input
+        placeholder="Cari nama, instansi, asal daerah, atau ticket..."
+        value={localValue}
+        onChange={(event) => setLocalValue(event.target.value)}
+        className="pl-10 w-64"
+      />
+    </div>
+  )
+}
+
+// Category Filter Component
+function CategoryFilter({ 
+  table 
+}: { 
+  table: any;
+}) {
+  const categoryOptions: FilterOption[] = [
+    { value: 'tata kelola', label: 'Tata Kelola', icon: <TagIcon className="size-4" /> },
+    { value: 'infrastruktur', label: 'Infrastruktur', icon: <TagIcon className="size-4" /> },
+    { value: 'aplikasi', label: 'Aplikasi', icon: <TagIcon className="size-4" /> },
+    { value: 'keamanan informasi', label: 'Keamanan Informasi', icon: <TagIcon className="size-4" /> },
+    { value: 'SDM', label: 'SDM', icon: <TagIcon className="size-4" /> }
+  ];
+
+  const categoryFilter = table.getColumn('kategori')?.getFilterValue() as string[] ?? []
+
+  const handleCategoryChange = (categoryValue: string, checked: boolean) => {
+    const currentFilter = table.getColumn('kategori')?.getFilterValue() as string[] ?? []
+    if (checked) {
+      table.getColumn('kategori')?.setFilterValue([...currentFilter, categoryValue])
+    } else {
+      table.getColumn('kategori')?.setFilterValue(currentFilter.filter((value: string) => value !== categoryValue))
+    }
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-1">
+          <TagIcon className="size-4" />
+          Kategori
+          {categoryFilter.length > 0 && (
+            <Badge variant="secondary" className="ml-1 text-xs">
+              {categoryFilter.length}
+            </Badge>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56">
+        {categoryOptions.map((option) => (
+          <DropdownMenuCheckboxItem
+            key={option.value}
+            checked={categoryFilter.includes(option.value)}
+            onCheckedChange={(checked) => handleCategoryChange(option.value, checked)}
+          >
+            <div className="flex items-center gap-2">
+              {option.icon}
+              <span>{option.label}</span>
+            </div>
+          </DropdownMenuCheckboxItem>
+        ))}
+        {categoryFilter.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => table.getColumn('kategori')?.setFilterValue([])}>
+              <FilterXIcon className="size-4 mr-2" />
+              Clear Filter
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+// Status Filter Component
+function StatusFilter({ 
+  table 
+}: { 
+  table: any;
+}) {
+  const statusOptions: FilterOption[] = [
+    { value: 'new', label: 'New', icon: <ClockIcon className="size-4" /> },
+    { value: 'on process', label: 'On Process', icon: <LoaderIcon className="size-4" /> },
+    { value: 'ready to send', label: 'Ready to Send', icon: <ClockIcon className="size-4" /> },
+    { value: 'konsultasi zoom', label: 'Konsultasi Zoom', icon: <ClockIcon className="size-4" /> },
+    { value: 'done', label: 'Done', icon: <CheckCircle2Icon className="size-4" /> },
+    { value: 'FU pertanyaan', label: 'FU Pertanyaan', icon: <ClockIcon className="size-4" /> },
+    { value: 'cancel', label: 'Cancel', icon: <ClockIcon className="size-4" /> }
+  ];
+
+  const statusFilter = table.getColumn('status')?.getFilterValue() as string[] ?? []
+
+  const handleStatusChange = (statusValue: string, checked: boolean) => {
+    const currentFilter = table.getColumn('status')?.getFilterValue() as string[] ?? []
+    if (checked) {
+      table.getColumn('status')?.setFilterValue([...currentFilter, statusValue])
+    } else {
+      table.getColumn('status')?.setFilterValue(currentFilter.filter((value: string) => value !== statusValue))
+    }
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-1">
+          <ClockIcon className="size-4" />
+          Status
+          {statusFilter.length > 0 && (
+            <Badge variant="secondary" className="ml-1 text-xs">
+              {statusFilter.length}
+            </Badge>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56">
+        {statusOptions.map((option) => (
+          <DropdownMenuCheckboxItem
+            key={option.value}
+            checked={statusFilter.includes(option.value)}
+            onCheckedChange={(checked) => handleStatusChange(option.value, checked)}
+          >
+            <div className="flex items-center gap-2">
+              {option.icon}
+              <span>{option.label}</span>
+            </div>
+          </DropdownMenuCheckboxItem>
+        ))}
+        {statusFilter.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => table.getColumn('status')?.setFilterValue([])}>
+              <FilterXIcon className="size-4 mr-2" />
+              Clear Filter
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+// Unit Filter Component
+function UnitFilter({ 
+  table 
+}: { 
+  table: any;
+}) {
+  const { unitList } = useData()
+  const unitFilter = table.getColumn('units')?.getFilterValue() as number[] ?? []
+
+  const handleUnitChange = (unitId: number, checked: boolean) => {
+    const currentFilter = table.getColumn('units')?.getFilterValue() as number[] ?? []
+    if (checked) {
+      table.getColumn('units')?.setFilterValue([...currentFilter, unitId])
+    } else {
+      table.getColumn('units')?.setFilterValue(currentFilter.filter((id: number) => id !== unitId))
+    }
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-1">
+          <BuildingIcon className="size-4" />
+          Unit
+          {unitFilter.length > 0 && (
+            <Badge variant="secondary" className="ml-1 text-xs">
+              {unitFilter.length}
+            </Badge>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto">
+        {unitList.map((unit) => (
+          <DropdownMenuCheckboxItem
+            key={unit.id}
+            checked={unitFilter.includes(unit.id)}
+            onCheckedChange={(checked) => handleUnitChange(unit.id, checked)}
+          >
+            <div className="flex flex-col items-start">
+              <span className="text-sm font-medium">{unit.nama_unit}</span>
+              {unit.nama_pic && (
+                <span className="text-xs text-muted-foreground">PIC: {unit.nama_pic}</span>
+              )}
+            </div>
+          </DropdownMenuCheckboxItem>
+        ))}
+        {unitFilter.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => table.getColumn('units')?.setFilterValue([])}>
+              <FilterXIcon className="size-4 mr-2" />
+              Clear Filter
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+// Combined Filter Bar Component
+function FilterBar({ 
+  table,
+  globalFilter,
+  setGlobalFilter,
+  totalCount,
+  loading
+}: { 
+  table: any;
+  globalFilter: string;
+  setGlobalFilter: (value: string) => void;
+  totalCount: number;
+  loading: boolean;
+}) {
+  const hasFilters = 
+    (table.getColumn('kategori')?.getFilterValue() as string[])?.length > 0 ||
+    (table.getColumn('status')?.getFilterValue() as string[])?.length > 0 ||
+    (table.getColumn('units')?.getFilterValue() as number[])?.length > 0 ||
+    globalFilter
+
+  const clearAllFilters = () => {
+    table.getColumn('kategori')?.setFilterValue([])
+    table.getColumn('status')?.setFilterValue([])
+    table.getColumn('units')?.setFilterValue([])
+    setGlobalFilter('')
+  }
+
+  return (
+    <div className="flex items-center justify-between gap-4 p-4 border-b">
+      <div className="flex items-center gap-4 flex-1">
+        <SearchFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+        <div className="flex items-center gap-2">
+          <CategoryFilter table={table} />
+          <StatusFilter table={table} />
+          <UnitFilter table={table} />
+        </div>
+        {hasFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAllFilters}
+            className="gap-1"
+            disabled={loading}
+          >
+            <FilterXIcon className="size-4" />
+            Clear All
+          </Button>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        {loading ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <LoaderIcon className="size-4 animate-spin" />
+            Memuat...
+          </div>
+        ) : (
+          <span className="text-sm text-muted-foreground">
+            {totalCount} total hasil
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // Interface for PIC data
 interface PICData {
   id: number;
@@ -142,11 +448,7 @@ interface PICData {
 interface UnitData {
   id: number;
   nama_unit: string;
-  pic_id?: number;
-  pic_list?: {
-    id: number;
-    nama_pic: string;
-  };
+  nama_pic: string | null;
 }
 
 // PIC Selector Component
@@ -159,29 +461,8 @@ function PICSelector({
   currentPicName: string | null;
   onUpdate: (newPicName: string | null) => void;
 }) {
-  const [picList, setPicList] = React.useState<PICData[]>([]);
-  const [loading, setLoading] = React.useState(false);
-  const [updating, setUpdating] = React.useState(false);
-
-  // Fetch PIC list when component mounts
-  React.useEffect(() => {
-    const fetchPicList = async () => {
-      try {
-        const response = await fetch('/api/v1/konsultasi/pic');
-        if (!response.ok) throw new Error('Failed to fetch PIC list');
-        
-        const result = await response.json();
-        if (result.success && result.data) {
-          setPicList(result.data);
-        }
-      } catch (error) {
-        console.error('Error fetching PIC list:', error);
-        toast.error('Gagal memuat daftar PIC');
-      }
-    };
-
-    fetchPicList();
-  }, []);
+  const { picList, loading } = useData()
+  const [updating, setUpdating] = React.useState(false)
 
   const handlePicChange = async (selectedPicId: string) => {
     // Handle "null" case for unassigning PIC
@@ -280,17 +561,17 @@ function PICSelector({
   };
 
   return (
-    <Select onValueChange={handlePicChange} disabled={updating}>
+    <Select onValueChange={handlePicChange} disabled={updating || loading}>
       <SelectTrigger className="h-8 w-full border-transparent bg-transparent hover:bg-muted/30 focus:border focus:bg-background">
         <div className="flex items-center gap-1">
           <UserIcon className="size-3 text-muted-foreground" />
           <span className="text-sm">
-            {currentPicName || "Pilih PIC"}
+            {loading ? "Loading..." : currentPicName || "Pilih PIC"}
           </span>
         </div>
       </SelectTrigger>
       <SelectContent>
-        {picList.length === 0 ? (
+        {loading ? (
           <div className="p-2 text-sm text-muted-foreground">
             Memuat daftar PIC...
           </div>
@@ -309,7 +590,7 @@ function PICSelector({
         )}
       </SelectContent>
     </Select>
-  );
+  )
 }
 
 // Status Selector Component
@@ -670,8 +951,7 @@ function SolusiEditor({
           onClick={handleEdit}
           className="text-muted-foreground text-sm flex items-center gap-1 hover:text-foreground transition-colors"
         >
-          <FileTextIcon className="size-3" />
-          Belum ada solusi - Klik untuk tambah
+          Belum ada solusi
         </button>
       )}
     </div>
@@ -688,13 +968,12 @@ function UnitSelector({
   currentUnits: Array<{unit_id: number, unit_name: string | null, unit_pic_name: string | null}>;
   onUpdate: (newUnits: Array<{unit_id: number, unit_name: string | null, unit_pic_name: string | null}>) => void;
 }) {
-  const [unitList, setUnitList] = React.useState<UnitData[]>([]);
-  const [loading, setLoading] = React.useState(false);
-  const [updating, setSaving] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [selectedUnits, setSelectedUnits] = React.useState(currentUnits);
+  const { unitList, loading } = useData()
+  const [updating, setSaving] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [searchQuery, setSearchQuery] = React.useState('')
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [selectedUnits, setSelectedUnits] = React.useState(currentUnits)
 
   // Get currently selected unit IDs from the editing state
   const selectedUnitIds = React.useMemo(() => 
@@ -710,28 +989,7 @@ function UnitSelector({
     [unitList, searchQuery]
   );
 
-  // Fetch unit list when component mounts
-  React.useEffect(() => {
-    const fetchUnitList = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/v1/konsultasi/units');
-        if (!response.ok) throw new Error('Failed to fetch unit list');
-        
-        const result = await response.json();
-        if (result.success && result.data) {
-          setUnitList(result.data);
-        }
-      } catch (error) {
-        console.error('Error fetching unit list:', error);
-        toast.error('Gagal memuat daftar unit');
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchUnitList();
-  }, []);
 
   // Update selectedUnits when currentUnits changes
   React.useEffect(() => {
@@ -750,7 +1008,7 @@ function UnitSelector({
       newUnits = [...selectedUnits, {
         unit_id: unit.id,
         unit_name: unit.nama_unit,
-        unit_pic_name: unit.pic_list?.nama_pic || null
+        unit_pic_name: unit.nama_pic || null
       }];
     }
 
@@ -939,9 +1197,9 @@ function UnitSelector({
                           <div className="text-sm font-medium truncate">
                             {unit.nama_unit}
                           </div>
-                          {unit.pic_list?.nama_pic && (
+                          {unit.nama_pic && (
                             <div className="text-xs text-muted-foreground truncate">
-                              PIC: {unit.pic_list.nama_pic}
+                              PIC: {unit.nama_pic}
                             </div>
                           )}
                         </div>
@@ -1079,6 +1337,36 @@ const columns: ColumnDef<KonsultasiData>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "topics",
+    header: "Topik",
+    cell: ({ row }) => (
+      <div className="max-w-sm">
+        {row.original.topics && row.original.topics.length > 0 ? (
+          <div className="space-y-1">
+            {row.original.topics.slice(0, 2).map((topic, index) => (
+              <Badge
+                key={topic.topik_id}
+                variant="default"
+                className="text-xs px-2 py-1 block w-fit"
+              >
+                {topic.topik_name}
+              </Badge>
+            ))}
+            {row.original.topics.length > 2 && (
+              <span className="text-xs text-muted-foreground">
+                +{row.original.topics.length - 2} topik lainnya
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-sm flex items-center gap-1">
+            Belum ada topik
+          </span>
+        )}
+      </div>
+    ),
+  },
+  {
     accessorKey: "kategori",
     header: "Kategori",
     cell: ({ row }) => (
@@ -1116,7 +1404,7 @@ const columns: ColumnDef<KonsultasiData>[] = [
     cell: ({ row }) => (
       <div className="text-center">
         {row.original.skor_indeks_spbe ? (
-          <Badge variant="secondary" className="px-2 py-1">
+          <Badge variant="outline" className="px-2 py-1">
             {row.original.skor_indeks_spbe}
           </Badge>
         ) : (
@@ -1125,6 +1413,7 @@ const columns: ColumnDef<KonsultasiData>[] = [
       </div>
     ),
   },
+   
   {
     accessorKey: "solusi",
     header: "Solusi",
@@ -1152,14 +1441,13 @@ const columns: ColumnDef<KonsultasiData>[] = [
                 </div>
                 {shouldTruncate && (
                   <div className="text-xs text-blue-600 group-hover:text-blue-800 mt-2 font-medium">
-                    {isExpanded ? '↑ Sembunyikan' : '↓ Lihat selengkapnya'}
+                    
                   </div>
                 )}
               </button>
             </div>
           ) : (
             <span className="text-muted-foreground text-sm flex items-center gap-1">
-              <FileTextIcon className="size-3" />
               Belum ada solusi
             </span>
           )}
@@ -1177,7 +1465,7 @@ const columns: ColumnDef<KonsultasiData>[] = [
             {row.original.units.slice(0, 2).map((unit, index) => (
               <Badge
                 key={unit.unit_id}
-                variant="outline"
+                variant="default"
                 className="text-xs px-2 py-1 block w-fit"
               >
                 {/* <Building2Icon className="size-3 mr-1" /> */}
@@ -1203,8 +1491,40 @@ const columns: ColumnDef<KonsultasiData>[] = [
 ]
 
 // Create columns function that accepts setData
-const createColumns = (setData: React.Dispatch<React.SetStateAction<KonsultasiData[]>>): ColumnDef<KonsultasiData>[] => [
+const createColumns = (
+  setData: React.Dispatch<React.SetStateAction<KonsultasiData[]>>
+): ColumnDef<KonsultasiData>[] => [
   ...columns.slice(0, 3), // drag, select, nama_lengkap
+  {
+    accessorKey: "topics",
+    header: "Topik",
+    cell: ({ row }) => (
+      <div className="max-w-sm">
+        {row.original.topics && row.original.topics.length > 0 ? (
+          <div className="space-y-1">
+            {row.original.topics.slice(0, 2).map((topic, index) => (
+              <Badge
+                key={topic.topik_id}
+                variant="default"
+                className="text-xs px-2 py-1 block w-fit"
+              >
+                {topic.topik_name}
+              </Badge>
+            ))}
+            {row.original.topics.length > 2 && (
+              <span className="text-xs text-muted-foreground">
+                +{row.original.topics.length - 2} topik lainnya
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-sm flex items-center gap-1">
+            Belum ada topik
+          </span>
+        )}
+      </div>
+    ),
+  },
   {
     accessorKey: "kategori",
     header: "Kategori",
@@ -1245,7 +1565,7 @@ const createColumns = (setData: React.Dispatch<React.SetStateAction<KonsultasiDa
       />
     ),
   },
-  ...columns.slice(5, 6), // skor_indeks_spbe
+  ...columns.slice(6, 7), // skor_indeks_spbe
   {
     accessorKey: "solusi",
     header: "Solusi",
@@ -1269,6 +1589,7 @@ const createColumns = (setData: React.Dispatch<React.SetStateAction<KonsultasiDa
   {
     accessorKey: "units",
     header: "Unit",
+    // filterFn: unitsFilterFn,
     cell: ({ row }) => (
       <UnitSelector 
         konsultasiId={row.original.id}
@@ -1375,19 +1696,47 @@ export function DataTableAdminKonsultasi({
 }: {
   data: KonsultasiData[]
 }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
   const [data, setData] = React.useState(() => initialData)
   const [loading, setLoading] = React.useState(false)
+  const [totalCount, setTotalCount] = React.useState(initialData.length)
+  
+  // Get current parameters from URL
+  const currentPage = parseInt(searchParams.get('page') || '1')
+  const currentPageSize = parseInt(searchParams.get('pageSize') || '10')
+  const currentSearch = searchParams.get('search') || ''
+  const currentKategori = searchParams.get('kategori')?.split(',').filter(Boolean) || []
+  const currentStatus = searchParams.get('status')?.split(',').filter(Boolean) || []
+  const currentUnits = searchParams.get('units')?.split(',').filter(Boolean).map(Number) || []
+  
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
+  
+  // Initialize state from URL parameters
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(() => {
+    const filters: ColumnFiltersState = []
+    if (currentKategori.length > 0) {
+      filters.push({ id: 'kategori', value: currentKategori })
+    }
+    if (currentStatus.length > 0) {
+      filters.push({ id: 'status', value: currentStatus })
+    }
+    if (currentUnits.length > 0) {
+      filters.push({ id: 'units', value: currentUnits })
+    }
+    return filters
+  })
+  
+  const [globalFilter, setGlobalFilter] = React.useState(currentSearch)
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
+    pageIndex: currentPage - 1,
+    pageSize: currentPageSize,
   })
+  
   const sortableId = React.useId()
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -1400,16 +1749,65 @@ export function DataTableAdminKonsultasi({
     [data]
   )
 
-  // Fetch data from API
-  const fetchKonsultasiData = React.useCallback(async () => {
+  // Track if this is the initial load
+  const initialLoadRef = React.useRef(true)
+  
+  // Fetch data from API with filters and pagination
+  const fetchKonsultasiData = React.useCallback(async (skipURLUpdate = false) => {
     setLoading(true)
     try {
-      const response = await fetch('/api/v1/konsultasi/all')
+      const params = new URLSearchParams()
+      
+      // Pagination
+      const offset = (pagination.pageIndex) * pagination.pageSize
+      params.set('limit', pagination.pageSize.toString())
+      params.set('offset', offset.toString())
+      
+      // Sorting
+      if (sorting.length > 0) {
+        params.set('sortBy', sorting[0].id)
+        params.set('sortOrder', sorting[0].desc ? 'desc' : 'asc')
+      }
+      
+      // Filters
+      if (globalFilter) {
+        params.set('search', globalFilter)
+      }
+      
+      const kategoriFilter = columnFilters.find(f => f.id === 'kategori')?.value as string[]
+      if (kategoriFilter?.length > 0) {
+        params.set('kategori', kategoriFilter.join(','))
+      }
+      
+      const statusFilter = columnFilters.find(f => f.id === 'status')?.value as string[]
+      if (statusFilter?.length > 0) {
+        params.set('status', statusFilter.join(','))
+      }
+      
+      const unitsFilter = columnFilters.find(f => f.id === 'units')?.value as number[]
+      if (unitsFilter?.length > 0) {
+        params.set('units', unitsFilter.join(','))
+      }
+
+      const response = await fetch(`/api/v1/konsultasi/all?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch data')
       
       const result = await response.json()
       if (result.success && result.data) {
         setData(result.data)
+        setTotalCount(result.pagination?.total || 0)
+        
+        // Update URL parameters only if not skipped and not initial load
+        if (!skipURLUpdate && !initialLoadRef.current) {
+          updateURLParamsStable({
+            page: pagination.pageIndex + 1,
+            pageSize: pagination.pageSize,
+            search: globalFilter || null,
+            kategori: kategoriFilter?.length > 0 ? kategoriFilter.join(',') : null,
+            status: statusFilter?.length > 0 ? statusFilter.join(',') : null,
+            units: unitsFilter?.length > 0 ? unitsFilter.join(',') : null,
+          })
+        }
       } else {
         throw new Error(result.message || 'Failed to fetch data')
       }
@@ -1418,15 +1816,58 @@ export function DataTableAdminKonsultasi({
       toast.error('Gagal memuat data konsultasi')
     } finally {
       setLoading(false)
+      initialLoadRef.current = false
     }
-  }, [])
+  }, [pagination, sorting, columnFilters, globalFilter])
 
-  // Load data on mount
+  // Separate function to update URL parameters
+  const updateURLParamsStable = React.useCallback((params: Record<string, string | number | null>) => {
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== '' && value !== 0) {
+        newSearchParams.set(key, value.toString())
+      } else {
+        newSearchParams.delete(key)
+      }
+    })
+
+    router.push(`?${newSearchParams.toString()}`, { scroll: false })
+  }, [router, searchParams])
+
+  // Load data on initial mount
   React.useEffect(() => {
-    if (!initialData?.length) {
-      fetchKonsultasiData()
+    // Only fetch on initial mount if we have URL parameters that differ from defaults
+    const hasNonDefaultParams = 
+      currentPage !== 1 ||
+      currentPageSize !== 10 ||
+      currentSearch !== '' ||
+      currentKategori.length > 0 ||
+      currentStatus.length > 0 ||
+      currentUnits.length > 0
+    
+    if (hasNonDefaultParams) {
+      fetchKonsultasiData(true)
     }
-  }, [initialData, fetchKonsultasiData])
+  }, []) // Empty dependency array - only run once on mount
+
+  // Load data when internal state changes (filters, pagination, sorting)
+  React.useEffect(() => {
+    if (initialLoadRef.current) return // Skip initial load
+    
+    // Debounce the fetch to avoid multiple rapid calls
+    const timeoutId = setTimeout(() => {
+      fetchKonsultasiData(false)
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timeoutId)
+  }, [
+    pagination.pageIndex, 
+    pagination.pageSize, 
+    globalFilter, 
+    JSON.stringify(columnFilters), // Stringify for deep comparison
+    JSON.stringify(sorting) // Stringify for deep comparison
+  ])
 
   // Create columns with setData function
   const columnsWithData = React.useMemo(() => createColumns(setData), [setData])
@@ -1439,19 +1880,22 @@ export function DataTableAdminKonsultasi({
       columnVisibility,
       rowSelection,
       columnFilters,
+      globalFilter,
       pagination,
     },
+    pageCount: Math.ceil(totalCount / pagination.pageSize),
     getRowId: (row) => row.id.toString(),
     enableRowSelection: true,
+    manualPagination: true,
+    manualFiltering: true,
+    manualSorting: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
@@ -1466,6 +1910,7 @@ export function DataTableAdminKonsultasi({
       })
     }
   }
+
 
   return (
     <Tabs
@@ -1513,7 +1958,7 @@ export function DataTableAdminKonsultasi({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm" onClick={fetchKonsultasiData} disabled={loading}>
+          <Button variant="outline" size="sm" onClick={() => fetchKonsultasiData(true)} disabled={loading}>
             {loading ? <LoaderIcon className="animate-spin" /> : <RefreshCcw />}
             {/* <span className="hidden lg:inline">
               {loading ? 'Loading...' : 'Refresh Data'}
@@ -1526,6 +1971,13 @@ export function DataTableAdminKonsultasi({
         value="konsultasi"
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
+        <FilterBar 
+          table={table}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          totalCount={totalCount}
+          loading={loading}
+        />
         <div className="overflow-hidden rounded-lg border">
           <DndContext
             collisionDetection={closestCenter}
@@ -1591,8 +2043,7 @@ export function DataTableAdminKonsultasi({
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} dari{" "}
-            {table.getFilteredRowModel().rows.length} baris dipilih.
+            Menampilkan {pagination.pageIndex * pagination.pageSize + 1} - {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalCount)} dari {totalCount} hasil
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
@@ -1621,7 +2072,7 @@ export function DataTableAdminKonsultasi({
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
               Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
-              {table.getPageCount()}
+              {Math.ceil(totalCount / pagination.pageSize)}
             </div>
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
@@ -1803,7 +2254,7 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
               <h4 className="font-semibold text-sm">Topik Konsultasi</h4>
               <div className="flex flex-wrap gap-2">
                 {item.topics.map((topic, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
+                  <Badge key={index} variant="default" className="text-xs">
                     {topic.topik_name}
                   </Badge>
                 ))}
