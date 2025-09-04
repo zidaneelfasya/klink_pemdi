@@ -27,7 +27,6 @@ create table messages (
 
 -- untuk admin klinik pemdi
 -- Buat ENUM untuk kategori
-
 CREATE TYPE kategori_enum AS ENUM ('tata kelola', 'infrastruktur', 'aplikasi', 'keamanan informasi', 'SDM');
 
 -- Buat ENUM untuk status
@@ -78,21 +77,21 @@ CREATE TABLE konsultasi_spbe (
 CREATE TABLE unit_penanggungjawab (
     id SERIAL PRIMARY KEY,
     nama_unit TEXT UNIQUE NOT NULL,
-    pic_id INTEGER REFERENCES pic_list(id)
+    nama_pic TEXT
 );
 
 -- Insert data unit penanggung jawab
-INSERT INTO unit_penanggungjawab (nama_unit, pic_id) VALUES
-('Tim Akselerasi Pemerintah Daerah', (SELECT id FROM pic_list WHERE nama_pic = 'Safira')),
-('Tim Smart City', (SELECT id FROM pic_list WHERE nama_pic = 'Dina')),
-('Tim Desa dan Konkuren', (SELECT id FROM pic_list WHERE nama_pic = 'Rian')),
-('Direktorat Aplikasi Pemerintah', (SELECT id FROM pic_list WHERE nama_pic = 'Sofi')),
-('Direktorat Infrastruktur Pemerintah', (SELECT id FROM pic_list WHERE nama_pic = 'Nayaka')),
-('Direktorat Strajak', (SELECT id FROM pic_list WHERE nama_pic = 'Yuki')),
+INSERT INTO unit_penanggungjawab (nama_unit, nama_pic) VALUES
+('Tim Akselerasi Pemerintah Daerah','Safira'),
+('Tim Smart City','Dina'),
+('Tim Desa dan Konkuren','Rian'),
+('Direktorat Aplikasi Pemerintah','Sofi'),
+('Direktorat Infrastruktur Pemerintah','Nayaka'),
+('Direktorat Strajak', 'Yuki'),
 ('BAKTI', NULL),
-('Ditjen Infrastruktur Digital', (SELECT id FROM pic_list WHERE nama_pic = 'Hilman')),
-('BSSN', (SELECT id FROM pic_list WHERE nama_pic = 'Ivan Bashofi')),
-('KemenPANRB', (SELECT id FROM pic_list WHERE nama_pic = 'Iksan'));
+('Ditjen Infrastruktur Digital','Hilman'),
+('BSSN','Ivan Bashofi'),
+('KemenPANRB','Iksan');
 
 -- Buat tabel untuk menghubungkan konsultasi dengan unit
 CREATE TABLE konsultasi_unit (
@@ -138,4 +137,4 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_konsultasi_updated_at
     BEFORE UPDATE ON konsultasi_spbe
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column(); 
+    EXECUTE FUNCTION update_updated_at_column();

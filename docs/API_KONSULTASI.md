@@ -326,7 +326,28 @@ Mengambil daftar unit penanggung jawab.
 }
 ```
 
-### 4. GET /api/v1/konsultasi/topics
+### 4. PUT /api/v1/konsultasi/units
+Mengupdate unit penanggung jawab untuk konsultasi (many-to-many relationship).
+
+#### Request Body:
+```json
+{
+  "konsultasi_id": 1,
+  "unit_ids": [1, 3, 5]
+}
+```
+
+#### Response:
+```json
+{
+  "success": true,
+  "message": "Unit penanggung jawab berhasil diperbarui untuk konsultasi #1"
+}
+```
+
+**Catatan**: Endpoint ini akan menghapus semua relasi unit lama untuk konsultasi tersebut, kemudian menambahkan relasi baru sesuai dengan `unit_ids` yang diberikan. Jika `unit_ids` berupa array kosong `[]`, maka semua relasi unit untuk konsultasi tersebut akan dihapus.
+
+### 5. GET /api/v1/konsultasi/topics
 Mengambil daftar topik konsultasi.
 
 #### Response:

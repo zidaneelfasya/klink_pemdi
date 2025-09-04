@@ -35,8 +35,8 @@ export interface PIC {
 export interface UnitPenanggungJawab {
   id: number;
   nama_unit: string;
-  pic_id: number | null;
-  pic_list?: PIC | null;
+  nama_pic: string | null;
+  // pic_list?: PIC | null;
 }
 
 export interface TopikKonsultasi {
