@@ -84,25 +84,25 @@ import {
 } from "@/components/ui/tabs"
 import { toast } from "sonner"
 import {
+  BuildingIcon,
   CheckCircle2Icon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
+  ClockIcon,
   ColumnsIcon,
+  FileTextIcon,
   GripVerticalIcon,
   LoaderIcon,
   MoreVerticalIcon,
   PlusIcon,
-  ClockIcon,
-  BuildingIcon,
-  UserIcon,
+  RefreshCcw,
   TagIcon,
-  FileTextIcon,
-  Building2Icon,
+  UserIcon,
   XIcon,
-  CheckIcon,
 } from "lucide-react"
 
 export const konsultasiSchema = z.object({
@@ -136,6 +136,17 @@ type KonsultasiData = z.infer<typeof konsultasiSchema>
 interface PICData {
   id: number;
   nama_pic: string;
+}
+
+// Interface for Unit data
+interface UnitData {
+  id: number;
+  nama_unit: string;
+  pic_id?: number;
+  pic_list?: {
+    id: number;
+    nama_pic: string;
+  };
 }
 
 // PIC Selector Component
@@ -667,6 +678,326 @@ function SolusiEditor({
   );
 }
 
+// Unit Selector Component
+function UnitSelector({ 
+  konsultasiId, 
+  currentUnits, 
+  onUpdate 
+}: { 
+  konsultasiId: number;
+  currentUnits: Array<{unit_id: number, unit_name: string | null, unit_pic_name: string | null}>;
+  onUpdate: (newUnits: Array<{unit_id: number, unit_name: string | null, unit_pic_name: string | null}>) => void;
+}) {
+  const [unitList, setUnitList] = React.useState<UnitData[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [updating, setSaving] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [selectedUnits, setSelectedUnits] = React.useState(currentUnits);
+
+  // Get currently selected unit IDs from the editing state
+  const selectedUnitIds = React.useMemo(() => 
+    new Set(selectedUnits.map(unit => unit.unit_id)), 
+    [selectedUnits]
+  );
+
+  // Filter units based on search query
+  const filteredUnits = React.useMemo(() => 
+    unitList.filter(unit => 
+      unit.nama_unit.toLowerCase().includes(searchQuery.toLowerCase())
+    ), 
+    [unitList, searchQuery]
+  );
+
+  // Fetch unit list when component mounts
+  React.useEffect(() => {
+    const fetchUnitList = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/v1/konsultasi/units');
+        if (!response.ok) throw new Error('Failed to fetch unit list');
+        
+        const result = await response.json();
+        if (result.success && result.data) {
+          setUnitList(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching unit list:', error);
+        toast.error('Gagal memuat daftar unit');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUnitList();
+  }, []);
+
+  // Update selectedUnits when currentUnits changes
+  React.useEffect(() => {
+    setSelectedUnits(currentUnits);
+  }, [currentUnits]);
+
+  const handleUnitToggle = (unit: UnitData) => {
+    const isSelected = selectedUnitIds.has(unit.id);
+    let newUnits: Array<{unit_id: number, unit_name: string | null, unit_pic_name: string | null}>;
+
+    if (isSelected) {
+      // Remove unit
+      newUnits = selectedUnits.filter(u => u.unit_id !== unit.id);
+    } else {
+      // Add unit
+      newUnits = [...selectedUnits, {
+        unit_id: unit.id,
+        unit_name: unit.nama_unit,
+        unit_pic_name: unit.pic_list?.nama_pic || null
+      }];
+    }
+
+    setSelectedUnits(newUnits);
+  };
+
+  const handleRemoveUnit = (unitId: number) => {
+    const newUnits = selectedUnits.filter(u => u.unit_id !== unitId);
+    setSelectedUnits(newUnits);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    const loadingToast = toast.loading("Menyimpan unit penanggung jawab...");
+
+    try {
+      // Get unit IDs for API call
+      const unitIds = selectedUnits.map(unit => unit.unit_id);
+      
+      const response = await fetch('/api/v1/konsultasi/units', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          konsultasi_id: konsultasiId,
+          unit_ids: unitIds,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update units');
+      
+      const result = await response.json();
+      if (result.success) {
+        onUpdate(selectedUnits);
+        setIsEditing(false);
+        setIsOpen(false);
+        
+        toast.dismiss(loadingToast);
+        toast.success("Unit penanggung jawab berhasil disimpan!", {
+          description: `Konsultasi #${konsultasiId} sekarang memiliki ${selectedUnits.length} unit penanggung jawab`,
+          duration: 4000,
+        });
+      } else {
+        throw new Error(result.message || 'Update failed');
+      }
+    } catch (error) {
+      console.error('Error updating units:', error);
+      
+      toast.dismiss(loadingToast);
+      toast.error('Gagal menyimpan unit penanggung jawab', {
+        description: error instanceof Error ? error.message : 'Terjadi kesalahan saat menyimpan unit',
+        duration: 4000,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setSelectedUnits(currentUnits);
+    setIsEditing(false);
+    setIsOpen(false);
+    setSearchQuery('');
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setIsOpen(true);
+  };
+
+  const hasChanges = React.useMemo(() => {
+    if (currentUnits.length !== selectedUnits.length) return true;
+    
+    const currentIds = new Set(currentUnits.map(u => u.unit_id));
+    const selectedIds = new Set(selectedUnits.map(u => u.unit_id));
+    
+    return currentUnits.some(u => !selectedIds.has(u.unit_id)) || 
+           selectedUnits.some(u => !currentIds.has(u.unit_id));
+  }, [currentUnits, selectedUnits]);
+
+  return (
+    <div className="max-w-sm w-full">
+      {/* Display selected units as chips */}
+      {currentUnits.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {currentUnits.map((unit) => (
+            <Badge
+              key={unit.unit_id}
+              variant="secondary"
+              className="text-xs px-2 py-1 flex items-center gap-1"
+            >
+              {unit.unit_name}
+              {isEditing && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveUnit(unit.unit_id);
+                  }}
+                  disabled={updating}
+                  className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                >
+                  <XIcon className="size-2" />
+                </button>
+              )}
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {/* Show editing units when in editing mode */}
+      {isEditing && selectedUnits.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2 p-2 bg-muted/30 rounded border-dashed border-2 border-muted">
+          <div className="text-xs text-muted-foreground w-full mb-1">Preview:</div>
+          {selectedUnits.map((unit) => (
+            <Badge
+              key={unit.unit_id}
+              variant="outline"
+              className="text-xs px-2 py-1 flex items-center gap-1"
+            >
+              {unit.unit_name}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveUnit(unit.unit_id);
+                }}
+                disabled={updating}
+                className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+              >
+                <XIcon className="size-2" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {/* Dropdown for selecting units */}
+      {isEditing ? (
+        <div className="space-y-2">
+          <Select open={isOpen} onOpenChange={setIsOpen}>
+            <SelectTrigger className="h-8 w-full">
+              <div className="flex items-center gap-1">
+                <UserIcon className="size-3 text-muted-foreground" />
+                <span className="text-sm">
+                  {selectedUnits.length > 0 
+                    ? `${selectedUnits.length} unit dipilih` 
+                    : "Pilih unit"}
+                </span>
+              </div>
+            </SelectTrigger>
+            <SelectContent className="w-64">
+              {/* Search input */}
+              <div className="px-2 py-2">
+                <Input
+                  placeholder="Cari unit..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-8 text-sm"
+                />
+              </div>
+              
+              {loading ? (
+                <div className="p-2 text-sm text-muted-foreground">
+                  Memuat daftar unit...
+                </div>
+              ) : filteredUnits.length === 0 ? (
+                <div className="p-2 text-sm text-muted-foreground">
+                  {searchQuery ? 'Tidak ada unit yang cocok' : 'Tidak ada unit tersedia'}
+                </div>
+              ) : (
+                <div className="max-h-48 overflow-y-auto">
+                  {filteredUnits.map((unit) => {
+                    const isSelected = selectedUnitIds.has(unit.id);
+                    return (
+                      <div
+                        key={unit.id}
+                        className="flex items-center gap-2 px-2 py-2 cursor-pointer hover:bg-accent rounded-sm"
+                        onClick={() => handleUnitToggle(unit)}
+                      >
+                        <div className={`w-4 h-4 border rounded flex items-center justify-center ${
+                          isSelected ? 'bg-primary border-primary' : 'border-muted-foreground'
+                        }`}>
+                          {isSelected && <CheckIcon className="size-3 text-primary-foreground" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">
+                            {unit.nama_unit}
+                          </div>
+                          {unit.pic_list?.nama_pic && (
+                            <div className="text-xs text-muted-foreground truncate">
+                              PIC: {unit.pic_list.nama_pic}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </SelectContent>
+          </Select>
+          
+          {/* Save and Cancel buttons */}
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={updating || !hasChanges}
+              className="h-7 px-3"
+            >
+              {updating ? (
+                <LoaderIcon className="size-3 animate-spin" />
+              ) : (
+                <CheckIcon className="size-3" />
+              )}
+              Simpan
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={updating}
+              className="h-7 px-3"
+            >
+              <XIcon className="size-3" />
+              Batal
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={handleEdit}
+          className="h-8 w-full border-transparent bg-transparent hover:bg-muted/30 focus:border focus:bg-background rounded px-2 flex items-center gap-1 transition-colors"
+          disabled={updating}
+        >
+          <UserIcon className="size-3 text-muted-foreground" />
+          <span className="text-sm">
+            {currentUnits.length > 0 
+              ? `${currentUnits.length} unit dipilih` 
+              : "Pilih unit"}
+          </span>
+        </button>
+      )}
+    </div>
+  );
+}
+
 // Status color mapping
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -935,7 +1266,26 @@ const createColumns = (setData: React.Dispatch<React.SetStateAction<KonsultasiDa
       />
     ),
   },
-  ...columns.slice(7), // units
+  {
+    accessorKey: "units",
+    header: "Unit",
+    cell: ({ row }) => (
+      <UnitSelector 
+        konsultasiId={row.original.id}
+        currentUnits={row.original.units || []}
+        onUpdate={(newUnits) => {
+          // Update local data state
+          setData(prevData => 
+            prevData.map(item => 
+              item.id === row.original.id 
+                ? { ...item, units: newUnits }
+                : item
+            )
+          )
+        }}
+      />
+    ),
+  },
   {
     accessorKey: "pic_name",
     header: "PIC",
@@ -1164,10 +1514,10 @@ export function DataTableAdminKonsultasi({
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" size="sm" onClick={fetchKonsultasiData} disabled={loading}>
-            {loading ? <LoaderIcon className="animate-spin" /> : <PlusIcon />}
-            <span className="hidden lg:inline">
+            {loading ? <LoaderIcon className="animate-spin" /> : <RefreshCcw />}
+            {/* <span className="hidden lg:inline">
               {loading ? 'Loading...' : 'Refresh Data'}
-            </span>
+            </span> */}
           </Button>
         </div>
       </div>
@@ -1331,7 +1681,7 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
               {item.nama_lengkap || "Nama tidak tersedia"}
             </span>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <BuildingIcon className="size-3" />
+              {/* <BuildingIcon className="size-3" /> */}
               <span>{item.instansi_organisasi || "Instansi tidak tersedia"}</span>
             </div>
             {item.asal_kota_kabupaten && (
