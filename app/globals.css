@@ -12,32 +12,32 @@
 		--card-foreground: 210 25% 7.8431%;
 		--popover: 0 0% 100%;
 		--popover-foreground: 210 25% 7.8431%;
-		--primary: 203.8863 88.2845% 53.1373%;
+		--primary: 203.1818 98.8764% 34.902%;
 		--primary-foreground: 0 0% 100%;
-		--secondary: 210 25% 7.8431%;
+		--secondary: 194.8696 100% 45.098%;
 		--secondary-foreground: 0 0% 100%;
 		--muted: 240 1.9608% 90%;
 		--muted-foreground: 210 25% 7.8431%;
 		--accent: 211.5789 51.3514% 92.7451%;
-		--accent-foreground: 203.8863 88.2845% 53.1373%;
+		--accent-foreground: 203.1818 98.8764% 34.902%;
 		--destructive: 356.3033 90.5579% 54.3137%;
 		--destructive-foreground: 0 0% 100%;
 		--border: 201.4286 30.4348% 90.9804%;
 		--input: 200 23.0769% 97.451%;
-		--ring: 202.8169 89.1213% 53.1373%;
-		--chart-1: 203.8863 88.2845% 53.1373%;
+		--ring: 202.9851 96.1722% 40.9804%;
+		--chart-1: 203.1818 98.8764% 34.902%;
 		--chart-2: 159.7826 100% 36.0784%;
 		--chart-3: 42.029 92.8251% 56.2745%;
 		--chart-4: 147.1429 78.5047% 41.9608%;
 		--chart-5: 341.4894 75.2% 50.9804%;
 		--sidebar: 180 6.6667% 97.0588%;
 		--sidebar-foreground: 210 25% 7.8431%;
-		--sidebar-primary: 203.8863 88.2845% 53.1373%;
+		--sidebar-primary: 203.1818 98.8764% 34.902%;
 		--sidebar-primary-foreground: 0 0% 100%;
 		--sidebar-accent: 211.5789 51.3514% 92.7451%;
-		--sidebar-accent-foreground: 203.8863 88.2845% 53.1373%;
+		--sidebar-accent-foreground: 203.1818 98.8764% 34.902%;
 		--sidebar-border: 205 25% 90.5882%;
-		--sidebar-ring: 202.8169 89.1213% 53.1373%;
+		--sidebar-ring: 203.1818 98.8764% 34.902%;
 		--font-sans: Open Sans, sans-serif;
 		--font-serif: Georgia, serif;
 		--font-mono: Menlo, monospace;
@@ -122,43 +122,43 @@
 }
 
 :root {
-  --sidebar: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+	--sidebar: hsl(0 0% 98%);
+	--sidebar-foreground: hsl(240 5.3% 26.1%);
+	--sidebar-primary: hsl(240 5.9% 10%);
+	--sidebar-primary-foreground: hsl(0 0% 98%);
+	--sidebar-accent: hsl(240 4.8% 95.9%);
+	--sidebar-accent-foreground: hsl(240 5.9% 10%);
+	--sidebar-border: hsl(220 13% 91%);
+	--sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
 .dark {
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+	--sidebar: hsl(240 5.9% 10%);
+	--sidebar-foreground: hsl(240 4.8% 95.9%);
+	--sidebar-primary: hsl(224.3 76.3% 48%);
+	--sidebar-primary-foreground: hsl(0 0% 100%);
+	--sidebar-accent: hsl(240 3.7% 15.9%);
+	--sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+	--sidebar-border: hsl(240 3.7% 15.9%);
+	--sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
 @theme inline {
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
 }
