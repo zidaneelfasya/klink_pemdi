@@ -7,13 +7,7 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from('unit_penanggungjawab')
-      .select(`
-        *,
-        pic_list:pic_id(
-          id,
-          nama_pic
-        )
-      `)
+      .select('*')
       .order('nama_unit', { ascending: true });
 
     if (error) {

@@ -10,6 +10,12 @@ export async function GET(request: NextRequest) {
   const offset = searchParams.get('offset');
   const sortBy = searchParams.get('sortBy') || 'created_at';
   const sortOrder = searchParams.get('sortOrder') || 'desc';
+  
+  // Filter parameters
+  const search = searchParams.get('search');
+  const kategori = searchParams.get('kategori');
+  const status = searchParams.get('status');
+  const unitIds = searchParams.get('units');
 
   try {
     // Query untuk mengambil SEMUA data konsultasi dengan semua relasi
@@ -27,10 +33,7 @@ export async function GET(request: NextRequest) {
           unit_penanggungjawab(
             id,
             nama_unit,
-            pic_list:pic_id(
-              id,
-              nama_pic
-            )
+            nama_pic
           )
         ),
         konsultasi_topik(
@@ -44,11 +47,48 @@ export async function GET(request: NextRequest) {
       `);
 
     // Apply sorting
-    // query = query.order(sortBy, { ascending: sortOrder === 'asc' });
     query = query.order(sortBy, { 
       ascending: sortOrder === 'asc',
       nullsFirst: false // Ini akan menempatkan nilai NULL di akhir
     });
+
+    // Apply filters
+    if (search) {
+      query = query.or(`nama_lengkap.ilike.%${search}%,instansi_organisasi.ilike.%${search}%,asal_kota_kabupaten.ilike.%${search}%,asal_provinsi.ilike.%${search}%`);
+    }
+
+    if (kategori) {
+      const categories = kategori.split(',');
+      query = query.in('kategori', categories);
+    }
+
+    if (status) {
+      const statuses = status.split(',');
+      query = query.in('status', statuses);
+    }
+
+    // For units filter, we'll need to do this differently because it's a relation
+    if (unitIds) {
+      const units = unitIds.split(',').map(id => parseInt(id));
+      // We'll need to filter after getting the data due to the complex relation
+    }
+
+    // Get total count for pagination (with filters applied)
+    let countQuery = supabase.from('konsultasi_spbe').select('*', { count: 'exact', head: true });
+    
+    if (search) {
+      countQuery = countQuery.or(`nama_lengkap.ilike.%${search}%,instansi_organisasi.ilike.%${search}%,asal_kota_kabupaten.ilike.%${search}%,asal_provinsi.ilike.%${search}%`);
+    }
+    if (kategori) {
+      const categories = kategori.split(',');
+      countQuery = countQuery.in('kategori', categories);
+    }
+    if (status) {
+      const statuses = status.split(',');
+      countQuery = countQuery.in('status', statuses);
+    }
+
+    const { count: totalCount } = await countQuery;
 
     // Apply pagination jika ada
     if (limit) {
@@ -68,13 +108,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get total count
-    const { count: totalCount } = await supabase
-      .from('konsultasi_spbe')
-      .select('*', { count: 'exact', head: true });
+    // Filter by units if specified (post-processing due to complex relation)
+    let filteredData = data;
+    if (unitIds && data) {
+      const units = unitIds.split(',').map(id => parseInt(id));
+      filteredData = data.filter(item => 
+        item.konsultasi_unit?.some((ku: any) => units.includes(ku.unit_id))
+      );
+    }
 
     // Transform data untuk format yang lebih mudah digunakan
-    const transformedData = data?.map(item => ({
+    const transformedData = filteredData?.map(item => ({
       ...item,
       // Flatten PIC data
       pic_name: item.pic_list?.nama_pic || null,
@@ -83,7 +127,7 @@ export async function GET(request: NextRequest) {
       units: item.konsultasi_unit?.map((ku: any) => ({
         unit_id: ku.unit_id,
         unit_name: ku.unit_penanggungjawab?.nama_unit || null,
-        unit_pic_name: ku.unit_penanggungjawab?.pic_list?.nama_pic || null
+        unit_pic_name: ku.unit_penanggungjawab?.nama_pic || null
       })) || [],
       
       // Transform topik data menjadi array yang lebih simple
@@ -103,11 +147,11 @@ export async function GET(request: NextRequest) {
       data: transformedData,
       pagination: {
         total: totalCount || 0,
-        limit: limit ? parseInt(limit) : data?.length || 0,
+        limit: limit ? parseInt(limit) : filteredData?.length || 0,
         offset: offset ? parseInt(offset) : 0,
         hasNext: totalCount ? (parseInt(offset || '0') + (parseInt(limit || String(totalCount)))) < totalCount : false
       },
-      message: `Berhasil mengambil ${data?.length || 0} dari ${totalCount || 0} data konsultasi`
+      message: `Berhasil mengambil ${filteredData?.length || 0} dari ${totalCount || 0} data konsultasi`
     });
 
   } catch (error) {
