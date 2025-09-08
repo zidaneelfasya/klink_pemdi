@@ -273,36 +273,36 @@ function CategoryFilter({ table }: { table: any }) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-        <Button 
-          variant={categoryFilter.length > 0 ? "default" : "outline"} 
-          size="sm" 
-          className="gap-1"
-        >
-          <TagIcon className="size-4" />
-          Kategori
-          {categoryFilter.length > 0 && (
-            <>
-              <Badge variant="secondary" className="ml-1 text-xs bg-background/20 text-foreground">
-                {categoryFilter.length}
-              </Badge>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      table.getColumn("kategori")?.setFilterValue([]);
-                    }}
-                    className="ml-1  p-0 hover:bg-destructive/20 hover:text-destructive flex items-center justify-center cursor-pointer rounded-sm"
-                  >
-                    
-                  </span>
-                </TooltipTrigger>
-               
-              </Tooltip>
-            </>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+				<Button
+					variant={categoryFilter.length > 0 ? "default" : "outline"}
+					size="sm"
+					className="gap-1"
+				>
+					<TagIcon className="size-4" />
+					Kategori
+					{categoryFilter.length > 0 && (
+						<>
+							<Badge
+								variant="secondary"
+								className="ml-1 text-xs bg-background/20 text-foreground"
+							>
+								{categoryFilter.length}
+							</Badge>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<span
+										onClick={(e) => {
+											e.stopPropagation();
+											table.getColumn("kategori")?.setFilterValue([]);
+										}}
+										className="ml-1  p-0 hover:bg-destructive/20 hover:text-destructive flex items-center justify-center cursor-pointer rounded-sm"
+									></span>
+								</TooltipTrigger>
+							</Tooltip>
+						</>
+					)}
+				</Button>
+			</DropdownMenuTrigger>
 
 			<DropdownMenuContent align="start" className="w-56">
 				{categoryOptions.map((option) => (
@@ -393,36 +393,36 @@ function StatusFilter({ table }: { table: any }) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-        <Button 
-          variant={statusFilter.length > 0 ? "default" : "outline"} 
-          size="sm" 
-          className="gap-1"
-        >
-          <ClockIcon className="size-4" />
-          Status
-          {statusFilter.length > 0 && (
-            <>
-              <Badge variant="secondary" className="ml-1 text-xs bg-background/20 text-foreground">
-                {statusFilter.length}
-              </Badge>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      table.getColumn("status")?.setFilterValue([]);
-                    }}
-                    className="ml-1 p-0 hover:bg-destructive/20 hover:text-destructive flex items-center justify-center cursor-pointer rounded-sm"
-                  >
-                
-                  </span>
-                </TooltipTrigger>
-                
-              </Tooltip>
-            </>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+				<Button
+					variant={statusFilter.length > 0 ? "default" : "outline"}
+					size="sm"
+					className="gap-1"
+				>
+					<ClockIcon className="size-4" />
+					Status
+					{statusFilter.length > 0 && (
+						<>
+							<Badge
+								variant="secondary"
+								className="ml-1 text-xs bg-background/20 text-foreground"
+							>
+								{statusFilter.length}
+							</Badge>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<span
+										onClick={(e) => {
+											e.stopPropagation();
+											table.getColumn("status")?.setFilterValue([]);
+										}}
+										className="ml-1 p-0 hover:bg-destructive/20 hover:text-destructive flex items-center justify-center cursor-pointer rounded-sm"
+									></span>
+								</TooltipTrigger>
+							</Tooltip>
+						</>
+					)}
+				</Button>
+			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start" className="w-56">
 				{statusOptions.map((option) => (
 					<DropdownMenuCheckboxItem
@@ -475,38 +475,41 @@ function UnitFilter({ table }: { table: any }) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-        <Button 
-          variant={unitFilter.length > 0 ? "default" : "outline"} 
-          size="sm" 
-          className="gap-1"
-        >
-          <BuildingIcon className="size-4" />
-          Unit
-          {unitFilter.length > 0 && (
-            <>
-              <Badge variant="secondary" className="ml-1 text-xs bg-background/20 text-foreground">
-                {unitFilter.length}
-              </Badge>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      table.getColumn("units")?.setFilterValue([]);
-                    }}
-                    className="ml-1 p-0 hover:bg-destructive/20 hover:text-destructive flex items-center justify-center cursor-pointer rounded-sm"
-                  >
-                    <FilterXIcon className="size-3" />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Hapus filter unit</p>
-                </TooltipContent>
-              </Tooltip>
-            </>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+				<Button
+					variant={unitFilter.length > 0 ? "default" : "outline"}
+					size="sm"
+					className="gap-1"
+				>
+					<BuildingIcon className="size-4" />
+					Unit
+					{unitFilter.length > 0 && (
+						<>
+							<Badge
+								variant="secondary"
+								className="ml-1 text-xs bg-background/20 text-foreground"
+							>
+								{unitFilter.length}
+							</Badge>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<span
+										onClick={(e) => {
+											e.stopPropagation();
+											table.getColumn("units")?.setFilterValue([]);
+										}}
+										className="ml-1 p-0 hover:bg-destructive/20 hover:text-destructive flex items-center justify-center cursor-pointer rounded-sm"
+									>
+										<FilterXIcon className="size-3" />
+									</span>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Hapus filter unit</p>
+								</TooltipContent>
+							</Tooltip>
+						</>
+					)}
+				</Button>
+			</DropdownMenuTrigger>
 			<DropdownMenuContent
 				align="start"
 				className="w-64 max-h-80 overflow-y-auto"
@@ -560,18 +563,20 @@ function FilterSummary({
 	const unitFilter =
 		(table.getColumn("units")?.getFilterValue() as number[]) ?? [];
 
-	const hasActiveFilters = 
-		globalFilter || 
-		categoryFilter.length > 0 || 
-		statusFilter.length > 0 || 
+	const hasActiveFilters =
+		globalFilter ||
+		categoryFilter.length > 0 ||
+		statusFilter.length > 0 ||
 		unitFilter.length > 0;
 
 	if (!hasActiveFilters) return null;
 
 	return (
 		<div className="flex flex-wrap gap-2 px-4 py-2 bg-muted/30 border-b">
-			<span className="text-sm font-medium text-muted-foreground">Filter aktif:</span>
-			
+			<span className="text-sm font-medium text-muted-foreground">
+				Filter aktif:
+			</span>
+
 			{globalFilter && (
 				<Badge variant="outline" className="gap-1">
 					<SearchIcon className="size-3" />
@@ -2062,7 +2067,8 @@ export function DataTableAdminKonsultasi({
 	// Get current parameters from URL
 	const currentPage = parseInt(searchParams.get("page") || "1");
 	const pageSizeParam = searchParams.get("pageSize") || "all";
-	const currentPageSize = pageSizeParam === "all" ? Number.MAX_SAFE_INTEGER : parseInt(pageSizeParam);
+	const currentPageSize =
+		pageSizeParam === "all" ? Number.MAX_SAFE_INTEGER : parseInt(pageSizeParam);
 	const currentSearch = searchParams.get("search") || "";
 	const currentKategori =
 		searchParams.get("kategori")?.split(",").filter(Boolean) || [];
@@ -2122,6 +2128,7 @@ export function DataTableAdminKonsultasi({
 				const params = new URLSearchParams();
 
 				// Pagination
+				
 				const offset = pagination.pageIndex * pagination.pageSize;
 				if (pagination.pageSize === Number.MAX_SAFE_INTEGER) {
 					// For "all", don't set limit to get all records
@@ -2161,26 +2168,44 @@ export function DataTableAdminKonsultasi({
 					params.set("units", unitsFilter.join(","));
 				}
 
-				// Add user unit filtering if not admin
-				if (!isAdmin && !userLoading) {
-					params.set("enforceUserUnits", "true");
-				}
 
-				const response = await fetch(
-					`/api/v1/konsultasi/all?${params.toString()}`
-				);
-				if (!response.ok) throw new Error("Failed to fetch data");
+
+				// Use different API endpoint based on user access level
+				const apiEndpoint = isAdmin
+					? `/api/v1/konsultasi/admin?${params.toString()}`
+					: `/api/v1/konsultasi/unit-filtered?${params.toString()}`;
+
+				
+
+				const response = await fetch(apiEndpoint);
+
+				if (!response.ok) {
+					const errorText = await response.text();
+					console.error("API Error Response:", {
+						status: response.status,
+						statusText: response.statusText,
+						errorText,
+						endpoint: apiEndpoint,
+					});
+					throw new Error(
+						`API Error: ${response.status} - ${response.statusText}`
+					);
+				}
 
 				const result = await response.json();
 				if (result.success && result.data) {
 					setData(result.data);
+					
 					setTotalCount(result.pagination?.total || 0);
 
 					// Update URL parameters only if not skipped and not initial load
 					if (!skipURLUpdate && !initialLoadRef.current) {
 						updateURLParamsStable({
 							page: pagination.pageIndex + 1,
-							pageSize: pagination.pageSize === Number.MAX_SAFE_INTEGER ? "all" : pagination.pageSize,
+							pageSize:
+								pagination.pageSize === Number.MAX_SAFE_INTEGER
+									? "all"
+									: pagination.pageSize,
 							search: globalFilter || null,
 							kategori:
 								kategoriFilter?.length > 0 ? kategoriFilter.join(",") : null,
@@ -2193,7 +2218,17 @@ export function DataTableAdminKonsultasi({
 				}
 			} catch (error) {
 				console.error("Error fetching konsultasi data:", error);
-				toast.error("Gagal memuat data konsultasi");
+				console.error("Error details:", {
+					isAdmin,
+					userLoading,
+					apiEndpoint: isAdmin
+						? `/api/v1/konsultasi/admin/super`
+						: `/api/v1/konsultasi/admin/unit`,
+					error: error instanceof Error ? error.message : error,
+				});
+				toast.error("Gagal memuat data konsultasi", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
 			} finally {
 				setLoading(false);
 				initialLoadRef.current = false;
@@ -2203,11 +2238,11 @@ export function DataTableAdminKonsultasi({
 	);
 
 	useEffect(() => {
-    // Only fetch data when user data has loaded
-    if (!userLoading) {
-      fetchKonsultasiData(true);
-    }
-  }, [userLoading, fetchKonsultasiData]);
+		// Only fetch data when user data has loaded
+		if (!userLoading) {
+			fetchKonsultasiData(true);
+		}
+	}, [userLoading, fetchKonsultasiData]);
 	// Separate function to update URL parameters
 	const updateURLParamsStable = React.useCallback(
 		(params: Record<string, string | number | null>) => {
@@ -2277,7 +2312,10 @@ export function DataTableAdminKonsultasi({
 			globalFilter,
 			pagination,
 		},
-		pageCount: pagination.pageSize === Number.MAX_SAFE_INTEGER ? 1 : Math.ceil(totalCount / pagination.pageSize),
+		pageCount:
+			pagination.pageSize === Number.MAX_SAFE_INTEGER
+				? 1
+				: Math.ceil(totalCount / pagination.pageSize),
 		getRowId: (row) => row.id.toString(),
 		enableRowSelection: true,
 		manualPagination: true,
@@ -2311,251 +2349,302 @@ export function DataTableAdminKonsultasi({
 				defaultValue="konsultasi"
 				className="flex w-full flex-col justify-start gap-6"
 			>
-			<div className="flex items-center justify-between px-4 lg:px-6">
-				<div className="flex items-center gap-4">
-					<h2 className="text-2xl font-bold">Data Konsultasi SPBE</h2>
-					<Badge variant="secondary" className="text-sm">
-						{data.length} konsultasi
-					</Badge>
-					{!userLoading && (
-						<Badge variant={isAdmin ? "default" : "outline"} className="text-xs">
-							{isAdmin 
-								? "👤 Admin (Full Access)" 
-								: `🏢 Unit Access (${userUnits.length} unit${userUnits.length !== 1 ? 's' : ''})`
-							}
+				<div className="flex items-center justify-between px-4 lg:px-6">
+					<div className="flex items-center gap-4">
+						<h2 className="text-2xl font-bold">Data Konsultasi SPBE</h2>
+						<Badge variant="secondary" className="text-sm">
+							{data.length} konsultasi
 						</Badge>
-					)}
-				</div>
-
-				<div className="flex items-center gap-2">
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="outline" size="sm">
-								<ColumnsIcon />
-								<span className="hidden lg:inline">Kolom</span>
-								<ChevronDownIcon />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-56">
-							{table
-								.getAllColumns()
-								.filter(
-									(column) =>
-										typeof column.accessorFn !== "undefined" &&
-										column.getCanHide()
-								)
-								.map((column) => {
-									return (
-										<DropdownMenuCheckboxItem
-											key={column.id}
-											className="capitalize"
-											checked={column.getIsVisible()}
-											onCheckedChange={(value) =>
-												column.toggleVisibility(!!value)
-											}
-										>
-											{column.id}
-										</DropdownMenuCheckboxItem>
-									);
-								})}
-						</DropdownMenuContent>
-					</DropdownMenu>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => fetchKonsultasiData(true)}
-						disabled={loading}
-					>
-						{loading ? <LoaderIcon className="animate-spin" /> : <RefreshCcw />}
-						{/* <span className="hidden lg:inline">
-              {loading ? 'Loading...' : 'Refresh Data'}
-            </span> */}
-					</Button>
-				</div>
-			</div>
-
-			<TabsContent
-				value="konsultasi"
-				className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
-			>
-				{userLoading ? (
-					<div className="flex items-center justify-center h-64">
-						<div className="flex items-center gap-2">
-							<LoaderIcon className="animate-spin" />
-							<span>Memuat data user dan izin akses...</span>
-						</div>
-					</div>
-				) : (
-					<>
-						<FilterBar
-							table={table}
-							globalFilter={globalFilter}
-							setGlobalFilter={setGlobalFilter}
-							totalCount={totalCount}
-							loading={loading}
-						/>
-						<FilterSummary
-							table={table}
-							globalFilter={globalFilter}
-							setGlobalFilter={setGlobalFilter}
-						/>
-						<div className="overflow-hidden rounded-lg border">
-					<DndContext
-						collisionDetection={closestCenter}
-						modifiers={[restrictToVerticalAxis]}
-						onDragEnd={handleDragEnd}
-						sensors={sensors}
-						id={sortableId}
-					>
-						<Table>
-							<TableHeader className="sticky top-0 z-10 bg-muted">
-								{table.getHeaderGroups().map((headerGroup) => (
-									<TableRow key={headerGroup.id}>
-										{headerGroup.headers.map((header) => {
-											return (
-												<TableHead key={header.id} colSpan={header.colSpan}>
-													{header.isPlaceholder
-														? null
-														: flexRender(
-																header.column.columnDef.header,
-																header.getContext()
-														  )}
-												</TableHead>
-											);
-										})}
-									</TableRow>
-								))}
-							</TableHeader>
-							<TableBody className="**:data-[slot=table-cell]:first:w-8">
-								{loading ? (
-									<TableRow>
-										<TableCell
-											colSpan={columnsWithData.length}
-											className="h-24 text-center"
-										>
-											<div className="flex items-center justify-center gap-2">
-												<LoaderIcon className="animate-spin" />
-												Memuat data konsultasi...
-											</div>
-										</TableCell>
-									</TableRow>
-								) : table.getRowModel().rows?.length ? (
-									<SortableContext
-										items={dataIds}
-										strategy={verticalListSortingStrategy}
-									>
-										{table.getRowModel().rows.map((row) => (
-											<DraggableRow key={row.id} row={row} />
+						{!userLoading && (
+							<div className="flex items-center gap-2">
+								<Badge
+									variant={isAdmin ? "default" : "outline"}
+									className="text-xs"
+								>
+									{isAdmin ? "Super Admin (Full Access)" : `Unit Access`}
+								</Badge>
+								{/* Tampilkan nama unit user */}
+								{userUnits.length > 0 && (
+									<div className="flex flex-wrap gap-1">
+										{userUnits.map((unit, index) => (
+											<Badge
+												key={unit.unit_id}
+												variant="secondary"
+												className="text-xs"
+											>
+												{unit.unit_name}
+											</Badge>
 										))}
-									</SortableContext>
-								) : (
-									<TableRow>
-										<TableCell
-											colSpan={columnsWithData.length}
-											className="h-24 text-center"
-										>
-											Tidak ada data konsultasi.
-										</TableCell>
-									</TableRow>
+									</div>
 								)}
-							</TableBody>
-						</Table>
-					</DndContext>
-				</div>
-				<div className="flex items-center justify-between px-4">
-					<div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
-						{pagination.pageSize === Number.MAX_SAFE_INTEGER ? (
-							`Menampilkan semua ${totalCount} hasil`
-						) : (
-							`Menampilkan ${pagination.pageIndex * pagination.pageSize + 1} - ${Math.min(
-								(pagination.pageIndex + 1) * pagination.pageSize,
-								totalCount
-							)} dari ${totalCount} hasil`
+							</div>
 						)}
 					</div>
-					<div className="flex w-full items-center gap-8 lg:w-fit">
-						<div className="hidden items-center gap-2 lg:flex">
-							<Label htmlFor="rows-per-page" className="text-sm font-medium">
-								Baris per halaman
-							</Label>
-							<Select
-								value={table.getState().pagination.pageSize === Number.MAX_SAFE_INTEGER ? "all" : `${table.getState().pagination.pageSize}`}
-								onValueChange={(value) => {
-									if (value === "all") {
-										table.setPageSize(Number.MAX_SAFE_INTEGER);
-									} else {
-										table.setPageSize(Number(value));
-									}
-								}}
-							>
-								<SelectTrigger className="w-24" id="rows-per-page">
-									<SelectValue
-										placeholder={table.getState().pagination.pageSize === Number.MAX_SAFE_INTEGER ? "All" : table.getState().pagination.pageSize}
-									/>
-								</SelectTrigger>
-								<SelectContent side="top">
-									<SelectItem value="all">All</SelectItem>
-									{[10, 20, 30, 40, 50].map((pageSize) => (
-										<SelectItem key={pageSize} value={`${pageSize}`}>
-											{pageSize}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-						<div className="flex w-fit items-center justify-center text-sm font-medium">
-							Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
-							{table.getState().pagination.pageSize === Number.MAX_SAFE_INTEGER 
-								? 1 
-								: Math.ceil(totalCount / pagination.pageSize)}
-						</div>
-						<div className="ml-auto flex items-center gap-2 lg:ml-0">
-							<Button
-								variant="outline"
-								className="hidden h-8 w-8 p-0 lg:flex"
-								onClick={() => table.setPageIndex(0)}
-								disabled={!table.getCanPreviousPage() || pagination.pageSize === Number.MAX_SAFE_INTEGER}
-							>
-								<span className="sr-only">Go to first page</span>
-								<ChevronsLeftIcon />
-							</Button>
-							<Button
-								variant="outline"
-								className="size-8"
-								size="icon"
-								onClick={() => table.previousPage()}
-								disabled={!table.getCanPreviousPage() || pagination.pageSize === Number.MAX_SAFE_INTEGER}
-							>
-								<span className="sr-only">Go to previous page</span>
-								<ChevronLeftIcon />
-							</Button>
-							<Button
-								variant="outline"
-								className="size-8"
-								size="icon"
-								onClick={() => table.nextPage()}
-								disabled={!table.getCanNextPage() || pagination.pageSize === Number.MAX_SAFE_INTEGER}
-							>
-								<span className="sr-only">Go to next page</span>
-								<ChevronRightIcon />
-							</Button>
-							<Button
-								variant="outline"
-								className="hidden size-8 lg:flex"
-								size="icon"
-								onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-								disabled={!table.getCanNextPage() || pagination.pageSize === Number.MAX_SAFE_INTEGER}
-							>
-								<span className="sr-only">Go to last page</span>
-								<ChevronsRightIcon />
-							</Button>
-						</div>
+
+					<div className="flex items-center gap-2">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="outline" size="sm">
+									<ColumnsIcon />
+									<span className="hidden lg:inline">Kolom</span>
+									<ChevronDownIcon />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" className="w-56">
+								{table
+									.getAllColumns()
+									.filter(
+										(column) =>
+											typeof column.accessorFn !== "undefined" &&
+											column.getCanHide()
+									)
+									.map((column) => {
+										return (
+											<DropdownMenuCheckboxItem
+												key={column.id}
+												className="capitalize"
+												checked={column.getIsVisible()}
+												onCheckedChange={(value) =>
+													column.toggleVisibility(!!value)
+												}
+											>
+												{column.id}
+											</DropdownMenuCheckboxItem>
+										);
+									})}
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => fetchKonsultasiData(true)}
+							disabled={loading}
+						>
+							{loading ? (
+								<LoaderIcon className="animate-spin" />
+							) : (
+								<RefreshCcw />
+							)}
+							{/* <span className="hidden lg:inline">
+              {loading ? 'Loading...' : 'Refresh Data'}
+            </span> */}
+						</Button>
 					</div>
 				</div>
-				</>
-				)}
-			</TabsContent>
-		</Tabs>
+
+				<TabsContent
+					value="konsultasi"
+					className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+				>
+					{userLoading ? (
+						<div className="flex items-center justify-center h-64">
+							<div className="flex items-center gap-2">
+								<LoaderIcon className="animate-spin" />
+								<span>Memuat data user dan izin akses...</span>
+							</div>
+						</div>
+					) : (
+						<>
+							<FilterBar
+								table={table}
+								globalFilter={globalFilter}
+								setGlobalFilter={setGlobalFilter}
+								totalCount={totalCount}
+								loading={loading}
+							/>
+							<FilterSummary
+								table={table}
+								globalFilter={globalFilter}
+								setGlobalFilter={setGlobalFilter}
+							/>
+							<div className="overflow-hidden rounded-lg border">
+								<DndContext
+									collisionDetection={closestCenter}
+									modifiers={[restrictToVerticalAxis]}
+									onDragEnd={handleDragEnd}
+									sensors={sensors}
+									id={sortableId}
+								>
+									<Table>
+										<TableHeader className="sticky top-0 z-10 bg-muted">
+											{table.getHeaderGroups().map((headerGroup) => (
+												<TableRow key={headerGroup.id}>
+													{headerGroup.headers.map((header) => {
+														return (
+															<TableHead
+																key={header.id}
+																colSpan={header.colSpan}
+															>
+																{header.isPlaceholder
+																	? null
+																	: flexRender(
+																			header.column.columnDef.header,
+																			header.getContext()
+																	  )}
+															</TableHead>
+														);
+													})}
+												</TableRow>
+											))}
+										</TableHeader>
+										<TableBody className="**:data-[slot=table-cell]:first:w-8">
+											{loading ? (
+												<TableRow>
+													<TableCell
+														colSpan={columnsWithData.length}
+														className="h-24 text-center"
+													>
+														<div className="flex items-center justify-center gap-2">
+															<LoaderIcon className="animate-spin" />
+															Memuat data konsultasi...
+														</div>
+													</TableCell>
+												</TableRow>
+											) : table.getRowModel().rows?.length ? (
+												<SortableContext
+													items={dataIds}
+													strategy={verticalListSortingStrategy}
+												>
+													{table.getRowModel().rows.map((row) => (
+														<DraggableRow key={row.id} row={row} />
+													))}
+												</SortableContext>
+											) : (
+												<TableRow>
+													<TableCell
+														colSpan={columnsWithData.length}
+														className="h-24 text-center"
+													>
+														Tidak ada data konsultasi.
+													</TableCell>
+												</TableRow>
+											)}
+										</TableBody>
+									</Table>
+								</DndContext>
+							</div>
+							<div className="flex items-center justify-between px-4">
+								<div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
+									{pagination.pageSize === Number.MAX_SAFE_INTEGER
+										? `Menampilkan semua ${totalCount} hasil`
+										: `Menampilkan ${
+												pagination.pageIndex * pagination.pageSize + 1
+										  } - ${Math.min(
+												(pagination.pageIndex + 1) * pagination.pageSize,
+												totalCount
+										  )} dari ${totalCount} hasil`}
+								</div>
+								<div className="flex w-full items-center gap-8 lg:w-fit">
+									<div className="hidden items-center gap-2 lg:flex">
+										<Label
+											htmlFor="rows-per-page"
+											className="text-sm font-medium"
+										>
+											Baris per halaman
+										</Label>
+										<Select
+											value={
+												table.getState().pagination.pageSize ===
+												Number.MAX_SAFE_INTEGER
+													? "all"
+													: `${table.getState().pagination.pageSize}`
+											}
+											onValueChange={(value) => {
+												if (value === "all") {
+													table.setPageSize(Number.MAX_SAFE_INTEGER);
+												} else {
+													table.setPageSize(Number(value));
+												}
+											}}
+										>
+											<SelectTrigger className="w-24" id="rows-per-page">
+												<SelectValue
+													placeholder={
+														table.getState().pagination.pageSize ===
+														Number.MAX_SAFE_INTEGER
+															? "All"
+															: table.getState().pagination.pageSize
+													}
+												/>
+											</SelectTrigger>
+											<SelectContent side="top">
+												<SelectItem value="all">All</SelectItem>
+												{[10, 20, 30, 40, 50].map((pageSize) => (
+													<SelectItem key={pageSize} value={`${pageSize}`}>
+														{pageSize}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</div>
+									<div className="flex w-fit items-center justify-center text-sm font-medium">
+										Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
+										{table.getState().pagination.pageSize ===
+										Number.MAX_SAFE_INTEGER
+											? 1
+											: Math.ceil(totalCount / pagination.pageSize)}
+									</div>
+									<div className="ml-auto flex items-center gap-2 lg:ml-0">
+										<Button
+											variant="outline"
+											className="hidden h-8 w-8 p-0 lg:flex"
+											onClick={() => table.setPageIndex(0)}
+											disabled={
+												!table.getCanPreviousPage() ||
+												pagination.pageSize === Number.MAX_SAFE_INTEGER
+											}
+										>
+											<span className="sr-only">Go to first page</span>
+											<ChevronsLeftIcon />
+										</Button>
+										<Button
+											variant="outline"
+											className="size-8"
+											size="icon"
+											onClick={() => table.previousPage()}
+											disabled={
+												!table.getCanPreviousPage() ||
+												pagination.pageSize === Number.MAX_SAFE_INTEGER
+											}
+										>
+											<span className="sr-only">Go to previous page</span>
+											<ChevronLeftIcon />
+										</Button>
+										<Button
+											variant="outline"
+											className="size-8"
+											size="icon"
+											onClick={() => table.nextPage()}
+											disabled={
+												!table.getCanNextPage() ||
+												pagination.pageSize === Number.MAX_SAFE_INTEGER
+											}
+										>
+											<span className="sr-only">Go to next page</span>
+											<ChevronRightIcon />
+										</Button>
+										<Button
+											variant="outline"
+											className="hidden size-8 lg:flex"
+											size="icon"
+											onClick={() =>
+												table.setPageIndex(table.getPageCount() - 1)
+											}
+											disabled={
+												!table.getCanNextPage() ||
+												pagination.pageSize === Number.MAX_SAFE_INTEGER
+											}
+										>
+											<span className="sr-only">Go to last page</span>
+											<ChevronsRightIcon />
+										</Button>
+									</div>
+								</div>
+							</div>
+						</>
+					)}
+				</TabsContent>
+			</Tabs>
 		</TooltipProvider>
 	);
 }
