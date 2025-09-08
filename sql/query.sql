@@ -120,10 +120,35 @@ INSERT INTO topik_konsultasi (nama_topik) VALUES
 
 -- Buat tabel untuk menghubungkan konsultasi dengan topik
 CREATE TABLE konsultasi_topik (
+    
     konsultasi_id INTEGER REFERENCES konsultasi_spbe(id) ON DELETE CASCADE,
     topik_id INTEGER REFERENCES topik_konsultasi(id) ON DELETE CASCADE,
     PRIMARY KEY (konsultasi_id, topik_id)
 );
+
+CREATE TABLE public.user_unit_penanggungjawab (
+  id SERIAL PRIMARY KEY,
+  user_id uuid NOT NULL,
+  unit_id integer NOT NULL,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT user_unit_penanggungjawab_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT user_unit_penanggungjawab_unit_id_fkey FOREIGN KEY (unit_id) REFERENCES public.unit_penanggungjawab(id),
+  CONSTRAINT user_unit_penanggungjawab_unique UNIQUE (user_id, unit_id)
+);
+
+-- CREATE TABLE roles (
+--     id SERIAL PRIMARY KEY,
+--     role TEXT UNIQUE NOT NULL
+-- );
+
+-- CREATE TABLE user_role (
+--     user_id uuid NOT NULL,
+--     role_id integer NOT NULL,
+--     CONSTRAINT user_role_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+--     CONSTRAINT user_role_unit_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id),
+--     CONSTRAINT user_role_unique UNIQUE (user_id, role_id)
+-- );
 
 -- Trigger untuk update timestamp otomatis
 CREATE OR REPLACE FUNCTION update_updated_at_column()
