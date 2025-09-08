@@ -37,11 +37,18 @@ export async function GET() {
     }
 
     // Transform data untuk memudahkan penggunaan
-    const transformedUnits = userUnits?.map(item => ({
-      unit_id: item.unit_id,
-      unit_name: item.unit_penanggungjawab?.nama_unit || null,
-      unit_pic_name: item.unit_penanggungjawab?.nama_pic || null
-    })) || [];
+const transformedUnits = userUnits?.map(item => {
+      // Handle case where unit_penanggungjawab might be an array or single object
+      const unit = Array.isArray(item.unit_penanggungjawab) 
+        ? item.unit_penanggungjawab[0] 
+        : item.unit_penanggungjawab;
+      
+      return {
+        unit_id: item.unit_id,
+        unit_name: unit?.nama_unit || null,
+        unit_pic_name: unit?.nama_pic || null
+      };
+    }) || [];
 
     return NextResponse.json({
       success: true,
