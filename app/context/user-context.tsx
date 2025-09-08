@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+// Update interface to match API response
 interface UserUnit {
   unit_id: number;
   unit_name: string | null;
@@ -61,21 +62,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setIsAdmin(profile.role === 'admin')
       }
 
-      // Fetch user's assigned units if not admin
-      if (profile && profile.role !== 'admin') {
-        const response = await fetch('/api/v1/users/units')
-        
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success) {
-            setUserUnits(result.data.units || [])
-          }
-        } else {
-          console.error('Failed to fetch user units')
-          setUserUnits([])
+      // Fetch user's assigned units
+      const response = await fetch('/api/v1/users/units')
+      
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success) {
+          const units: UserUnit[] = result.data.units || []
+          setUserUnits(units)
+          
+          
+          // Check if user has superadmin unit (unit_id = 1)
+          const isSuperAdmin = units.some((unit: UserUnit) => unit.unit_id === 1)
+          setIsAdmin(isSuperAdmin)
+          
         }
       } else {
-        // Admin has access to all units, so we don't need to fetch specific units
+        console.error('Failed to fetch user units')
         setUserUnits([])
       }
       
