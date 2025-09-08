@@ -162,3 +162,45 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+@layer utilities {
+	/* Floating animation for particles */
+	@keyframes float {
+		0%, 100% {
+			transform: translateY(0px) rotate(0deg);
+		}
+		33% {
+			transform: translateY(-20px) rotate(120deg);
+		}
+		66% {
+			transform: translateY(10px) rotate(240deg);
+		}
+	}
+	
+	.animate-float {
+		animation: float 6s ease-in-out infinite;
+	}
+	
+	/* Fade in animation */
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	
+	.animate-fade-in {
+		animation: fade-in 0.8s ease-out forwards;
+	}
+	
+	/* Glass card effect */
+	.glass-card {
+		background: rgba(255, 255, 255, 0.05);
+		backdrop-filter: blur(12px);
+		/* border: 1px solid rgba(255, 255, 255, 0.2); */
+	}
+}
