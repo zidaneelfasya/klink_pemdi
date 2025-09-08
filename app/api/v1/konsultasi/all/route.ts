@@ -16,8 +16,41 @@ export async function GET(request: NextRequest) {
   const kategori = searchParams.get('kategori');
   const status = searchParams.get('status');
   const unitIds = searchParams.get('units');
+  
+  // New parameter to enforce unit-based filtering
+  const enforceUserUnits = searchParams.get('enforceUserUnits') === 'true';
 
   try {
+    let userUnitIds: number[] = [];
+    
+    // If enforceUserUnits is true, get user's assigned units
+    if (enforceUserUnits) {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (!userError && user) {
+        const { data: userUnits } = await supabase
+          .from('user_unit_penanggungjawab')
+          .select('unit_id')
+          .eq('user_id', user.id);
+        
+        userUnitIds = userUnits?.map(u => u.unit_id) || [];
+        
+        // If user has no assigned units, return empty result
+        if (userUnitIds.length === 0) {
+          return NextResponse.json({
+            success: true,
+            data: [],
+            pagination: {
+              total: 0,
+              limit: limit ? parseInt(limit) : 0,
+              offset: offset ? parseInt(offset) : 0,
+              hasNext: false
+            },
+            message: 'User tidak memiliki unit yang ditugaskan'
+          });
+        }
+      }
+    }
     // Query untuk mengambil SEMUA data konsultasi dengan semua relasi
     let query = supabase
       .from('konsultasi_spbe')
@@ -110,9 +143,18 @@ export async function GET(request: NextRequest) {
 
     // Filter by units if specified (post-processing due to complex relation)
     let filteredData = data;
-    if (unitIds && data) {
-      const units = unitIds.split(',').map(id => parseInt(id));
+    
+    // Apply user units filter if enforceUserUnits is true
+    if (enforceUserUnits && userUnitIds.length > 0 && data) {
       filteredData = data.filter(item => 
+        item.konsultasi_unit?.some((ku: any) => userUnitIds.includes(ku.unit_id))
+      );
+    }
+    
+    // Apply additional units filter if specified
+    if (unitIds && filteredData) {
+      const units = unitIds.split(',').map(id => parseInt(id));
+      filteredData = filteredData.filter(item => 
         item.konsultasi_unit?.some((ku: any) => units.includes(ku.unit_id))
       );
     }
