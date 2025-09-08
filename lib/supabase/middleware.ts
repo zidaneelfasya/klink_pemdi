@@ -73,7 +73,7 @@ export async function updateSession(request: NextRequest) {
     if (!profile || profile.role !== "admin") {
       // User is not admin, redirect to dashboard
       const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
+      url.pathname = "/access-denied";
       return NextResponse.redirect(url);
     }
   }
