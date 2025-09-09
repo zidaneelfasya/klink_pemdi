@@ -10,7 +10,7 @@ interface ImportedRow {
   asal_provinsi?: string;
 
   uraian_kebutuhan_konsultasi?: string;
-  topik_konsultasi?: string; // Contains comma-separated topics
+  topik_konsultasi?: string
   skor_indeks_spbe?: number;
   kondisi_implementasi_spbe?: string;
   fokus_tujuan?: string;
@@ -19,13 +19,11 @@ interface ImportedRow {
   butuh_konsultasi_lanjut?: string | boolean;
   kategori?: string;
   status?: string;
-  pic?: string; // PIC name from CSV
-  pic_name?: string; // Alternative column name for PIC
-  unit?: string; // Unit names from CSV (comma-separated)
-  unit_names?: string; // Alternative column name for units
-  topik_names?: string; // Alternative column name for topics
+  pic_name?: string;
+  unit_names?: string; // Comma-separated unit names
+  topik_names?: string; // Comma-separated topic names
   solusi?: string;
-  ticket?: string;
+  // ticket?: string;
   timestamp?: string;
 }
 
@@ -67,11 +65,10 @@ export async function POST(request: NextRequest) {
     const allowedTypes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
       'application/vnd.ms-excel', // .xls
-      'text/csv', // .csv
-      'application/csv' // alternative CSV MIME type
+      'text/csv' // .csv
     ];
 
-    if (!allowedTypes.includes(file.type) && !file.name.toLowerCase().endsWith('.csv')) {
+    if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
         { error: 'Invalid file type. Please upload Excel (.xlsx, .xls) or CSV file.' },
         { status: 400 }
@@ -102,93 +99,12 @@ export async function POST(request: NextRequest) {
     const picMap = new Map(
       picResult.data?.map(pic => [pic.nama_pic.toLowerCase(), pic.id]) || []
     );
-    
     const unitMap = new Map(
       unitResult.data?.map(unit => [unit.nama_unit.toLowerCase(), unit.id]) || []
     );
-    
-    // Create unit alias mapping for common abbreviations and variations
-    const unitAliasMap = new Map<string, number>();
-    unitResult.data?.forEach(unit => {
-      const lowerName = unit.nama_unit.toLowerCase();
-      unitAliasMap.set(lowerName, unit.id);
-      
-      // Add common aliases
-      if (lowerName.includes('akselerasi')) {
-        unitAliasMap.set('aksel', unit.id);
-        unitAliasMap.set('tim aksel', unit.id);
-      }
-      if (lowerName.includes('aplikasi')) {
-        unitAliasMap.set('aplikasi', unit.id);
-        unitAliasMap.set('direktorat aplikasi', unit.id);
-      }
-      if (lowerName.includes('infrastruktur')) {
-        unitAliasMap.set('infrastruktur', unit.id);
-        unitAliasMap.set('direktorat infrastruktur', unit.id);
-      }
-      if (lowerName.includes('strajak')) {
-        unitAliasMap.set('strajak', unit.id);
-      }
-      if (lowerName.includes('bakti')) {
-        unitAliasMap.set('bakti', unit.id);
-      }
-      if (lowerName.includes('bssn')) {
-        unitAliasMap.set('bssn', unit.id);
-      }
-      if (lowerName.includes('kemenpanrb') || lowerName.includes('menpanrb')) {
-        unitAliasMap.set('kemenpanrb', unit.id);
-        unitAliasMap.set('menpanrb', unit.id);
-      }
-      if (lowerName.includes('ditjen')) {
-        unitAliasMap.set('ditjen infrastruktur digital', unit.id);
-      }
-    });
-    
     const topikMap = new Map(
       topikResult.data?.map(topik => [topik.nama_topik.toLowerCase(), topik.id]) || []
     );
-    
-    // Create topic alias mapping for variations
-    const topikAliasMap = new Map<string, number>();
-    topikResult.data?.forEach(topik => {
-      const lowerName = topik.nama_topik.toLowerCase();
-      topikAliasMap.set(lowerName, topik.id);
-      
-      // Add common aliases and partial matches based on the CSV data
-      if (lowerName.includes('arsitektur') && lowerName.includes('tata kelola')) {
-        topikAliasMap.set('arsitektur, tata kelola, regulasi, dan kebijakan', topik.id);
-      }
-      if (lowerName.includes('aplikasi spbe')) {
-        topikAliasMap.set('aplikasi spbe/pemerintah digital', topik.id);
-      }
-      if (lowerName.includes('infrastruktur spbe')) {
-        topikAliasMap.set('infrastruktur spbe/pemerintah digital', topik.id);
-      }
-      if (lowerName.includes('akses internet')) {
-        topikAliasMap.set('akses internet', topik.id);
-      }
-      if (lowerName.includes('manajemen data')) {
-        topikAliasMap.set('manajemen data dan informasi', topik.id);
-      }
-      if (lowerName.includes('keamanan data')) {
-        topikAliasMap.set('keamanan data', topik.id);
-      }
-      if (lowerName.includes('layanan digital')) {
-        topikAliasMap.set('layanan digital pemerintah', topik.id);
-      }
-      if (lowerName.includes('sumber daya manusia')) {
-        topikAliasMap.set('pengelolaan sumber daya manusia spbe/pemerintah digital', topik.id);
-      }
-      if (lowerName.includes('pengukuran') && lowerName.includes('evaluasi')) {
-        topikAliasMap.set('pengukuran dan evaluasi spbe/pemerintah digital', topik.id);
-      }
-      
-      // Handle special cases from CSV
-      topikAliasMap.set('literasi spbe', topik.id);
-      topikAliasMap.set('provinsi cerdas', topik.id);
-      topikAliasMap.set('implentasi indeks pemerintah digital (pemdi)', topik.id);
-      topikAliasMap.set('implementasi indeks pemerintah digital', topik.id);
-    });
 
     const result: ImportResult = {
       success: 0,
@@ -202,7 +118,7 @@ export async function POST(request: NextRequest) {
       const rowNumber = i + 2; // +2 because Excel rows start at 1 and we skip header
 
       try {
-        // Validate required fields (only nama_lengkap is truly required)
+        // Validate required fields
         if (!row.nama_lengkap?.trim()) {
           throw new Error('Nama lengkap is required');
         }
@@ -211,44 +127,20 @@ export async function POST(request: NextRequest) {
         const validKategori = ['tata kelola', 'infrastruktur', 'aplikasi', 'keamanan informasi', 'SDM'];
         const validStatus = ['new', 'on process', 'ready to send', 'konsultasi zoom', 'done', 'FU pertanyaan', 'cancel'];
 
-        // Normalize kategori and status to match database enums
-        let normalizedKategori = row.kategori?.trim();
-        if (normalizedKategori) {
-          // Handle case variations
-          if (normalizedKategori.toLowerCase() === 'sdm') {
-            normalizedKategori = 'SDM';
-          } else {
-            normalizedKategori = normalizedKategori.toLowerCase();
-          }
-          
-          if (!validKategori.includes(normalizedKategori)) {
-            throw new Error(`Invalid kategori: ${row.kategori}`);
-          }
+        if (row.kategori && !validKategori.includes(row.kategori.toLowerCase())) {
+          throw new Error(`Invalid kategori: ${row.kategori}`);
         }
 
-        let normalizedStatus = row.status?.trim();
-        if (normalizedStatus) {
-          // Handle case variations
-          if (normalizedStatus.toLowerCase() === 'done') {
-            normalizedStatus = 'done';
-          } else if (normalizedStatus.toLowerCase() === 'fu pertanyaan') {
-            normalizedStatus = 'FU pertanyaan';
-          } else {
-            normalizedStatus = normalizedStatus.toLowerCase();
-          }
-          
-          if (!validStatus.includes(normalizedStatus)) {
-            throw new Error(`Invalid status: ${row.status}`);
-          }
+        if (row.status && !validStatus.includes(row.status.toLowerCase())) {
+          throw new Error(`Invalid status: ${row.status}`);
         }
 
         // Find PIC ID
         let picId = null;
-        const picName = row.pic?.trim() || row.pic_name?.trim();
-        if (picName) {
-          picId = picMap.get(picName.toLowerCase());
+        if (row.pic_name?.trim()) {
+          picId = picMap.get(row.pic_name.toLowerCase().trim());
           if (!picId) {
-            console.warn(`PIC not found: ${picName} (row ${rowNumber})`);
+            console.warn(`PIC not found: ${row.pic_name} (row ${rowNumber})`);
           }
         }
 
@@ -280,17 +172,18 @@ export async function POST(request: NextRequest) {
           asal_kota_kabupaten: row.asal_kota_kabupaten?.trim() || null,
           asal_provinsi: row.asal_provinsi?.trim() || null,
           uraian_kebutuhan_konsultasi: row.uraian_kebutuhan_konsultasi?.trim() || null,
+          topik_konsultasi: row.topik_konsultasi?.trim() || null,
           skor_indeks_spbe: row.skor_indeks_spbe ? Number(row.skor_indeks_spbe) : null,
           kondisi_implementasi_spbe: row.kondisi_implementasi_spbe?.trim() || null,
           fokus_tujuan: row.fokus_tujuan?.trim() || null,
           mekanisme_konsultasi: row.mekanisme_konsultasi?.trim() || null,
           surat_permohonan: row.surat_permohonan?.trim() || null,
           butuh_konsultasi_lanjut: butuhKonsultasiLanjut,
-          kategori: normalizedKategori || 'tata kelola',
-          status: normalizedStatus || 'new',
+          kategori: row.kategori?.toLowerCase() || 'tata kelola',
+          status: row.status?.toLowerCase() || 'new',
           pic_id: picId,
           solusi: row.solusi?.trim() || null,
-          ticket: row.ticket?.trim() || null,
+          // ticket: row.ticket?.trim() || null,
           timestamp,
         };
 
@@ -307,15 +200,12 @@ export async function POST(request: NextRequest) {
         const konsultasiId = insertedKonsultasi.id;
 
         // Insert units if provided
-        const unitNamesString = row.unit?.trim() || row.unit_names?.trim();
-        if (unitNamesString) {
-          const unitNames = unitNamesString.split(',').map(name => name.trim());
+        if (row.unit_names?.trim()) {
+          const unitNames = row.unit_names.split(',').map(name => name.trim());
           const unitInserts = [];
 
           for (const unitName of unitNames) {
-            const lowerUnitName = unitName.toLowerCase();
-            let unitId = unitAliasMap.get(lowerUnitName) || unitMap.get(lowerUnitName);
-            
+            const unitId = unitMap.get(unitName.toLowerCase());
             if (unitId) {
               unitInserts.push({
                 konsultasi_id: konsultasiId,
@@ -338,15 +228,12 @@ export async function POST(request: NextRequest) {
         }
 
         // Insert topics if provided
-        const topikNamesString = row.topik_konsultasi?.trim() || row.topik_names?.trim();
-        if (topikNamesString) {
-          const topikNames = topikNamesString.split(',').map(name => name.trim());
+        if (row.topik_names?.trim()) {
+          const topikNames = row.topik_names.split(',').map(name => name.trim());
           const topikInserts = [];
 
           for (const topikName of topikNames) {
-            const lowerTopikName = topikName.toLowerCase();
-            let topikId = topikAliasMap.get(lowerTopikName) || topikMap.get(lowerTopikName);
-            
+            const topikId = topikMap.get(topikName.toLowerCase());
             if (topikId) {
               topikInserts.push({
                 konsultasi_id: konsultasiId,
