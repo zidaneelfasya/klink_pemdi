@@ -7,6 +7,13 @@ CREATE TABLE profiles (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   PRIMARY KEY (id)
 );
+
+-- ALTER statements to add new fields to profiles table
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS nip TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS jabatan TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS satuan_kerja TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS instansi TEXT;
+
 create table threads (
     id uuid primary key default gen_random_uuid(),
     title text not null,
@@ -120,7 +127,6 @@ INSERT INTO topik_konsultasi (nama_topik) VALUES
 
 -- Buat tabel untuk menghubungkan konsultasi dengan topik
 CREATE TABLE konsultasi_topik (
-    
     konsultasi_id INTEGER REFERENCES konsultasi_spbe(id) ON DELETE CASCADE,
     topik_id INTEGER REFERENCES topik_konsultasi(id) ON DELETE CASCADE,
     PRIMARY KEY (konsultasi_id, topik_id)
