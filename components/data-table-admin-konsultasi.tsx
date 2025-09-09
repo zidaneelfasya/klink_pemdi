@@ -111,6 +111,7 @@ import {
 } from "lucide-react";
 import { useData } from "@/app/context/data-context";
 import { useUser } from "@/app/context/user-context";
+import { ImportModal } from "./import-modal";
 
 export const konsultasiSchema = z.object({
 	id: z.number(),
@@ -2128,7 +2129,7 @@ export function DataTableAdminKonsultasi({
 				const params = new URLSearchParams();
 
 				// Pagination
-				
+
 				const offset = pagination.pageIndex * pagination.pageSize;
 				if (pagination.pageSize === Number.MAX_SAFE_INTEGER) {
 					// For "all", don't set limit to get all records
@@ -2168,14 +2169,10 @@ export function DataTableAdminKonsultasi({
 					params.set("units", unitsFilter.join(","));
 				}
 
-
-
 				// Use different API endpoint based on user access level
 				const apiEndpoint = isAdmin
 					? `/api/v1/konsultasi/admin?${params.toString()}`
 					: `/api/v1/konsultasi/unit-filtered?${params.toString()}`;
-
-				
 
 				const response = await fetch(apiEndpoint);
 
@@ -2195,7 +2192,7 @@ export function DataTableAdminKonsultasi({
 				const result = await response.json();
 				if (result.success && result.data) {
 					setData(result.data);
-					
+
 					setTotalCount(result.pagination?.total || 0);
 
 					// Update URL parameters only if not skipped and not initial load
@@ -2382,6 +2379,10 @@ export function DataTableAdminKonsultasi({
 					</div>
 
 					<div className="flex items-center gap-2">
+						{!userLoading && isAdmin ? (
+							<ImportModal onImportComplete={() => fetchKonsultasiData(true)} />
+						) : null}
+
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="outline" size="sm">
