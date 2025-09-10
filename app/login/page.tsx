@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
-import { use } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -46,7 +45,7 @@ export default function LoginPage() {
 					<div className="flex-1 relative">
 						<div className="absolute inset-0">
 							<Image
-								src="/images/login-img.png"
+								src="/images/form.png"
 								alt="Background Gradient"
 								fill
 								className="object-cover rounded-2xl"

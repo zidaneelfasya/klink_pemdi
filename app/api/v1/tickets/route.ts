@@ -37,22 +37,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 
-  // Insert ke tabel relasi konsultasi_topik
-  if (Array.isArray(body.topikKonsultasi) && data && data.id) {
-    for (const namaTopik of body.topikKonsultasi) {
-      // Cari id topik dari nama_topik
-      const { data: topik, error: topikError } = await supabase
-        .from("topik_konsultasi")
-        .select("id")
-        .eq("nama_topik", namaTopik)
-        .single();
-      if (!topikError && topik) {
-        await supabase
-          .from("konsultasi_topik")
-          .insert([{ konsultasi_id: data.id, topik_id: topik.id }]);
-      }
-    }
-  }
-
   return NextResponse.json({ success: true, ticket: ticketId, data })
 }
