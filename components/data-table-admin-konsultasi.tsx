@@ -1206,12 +1206,12 @@ function SolusiEditor({
 
 	if (isEditing) {
 		return (
-			<div className="max-w-sm w-full space-y-2">
+			<div className="max-w-[180px] w-full space-y-2">
 				<Textarea
 					value={editValue}
 					onChange={(e) => setEditValue(e.target.value)}
 					placeholder="Masukkan solusi konsultasi..."
-					className="min-h-[120px] text-sm resize-none"
+					className="min-h-[140px] text-sm resize-none"
 					disabled={updating}
 				/>
 				<div className="flex items-center gap-2">
@@ -1244,7 +1244,7 @@ function SolusiEditor({
 	}
 
 	return (
-		<div className="max-w-sm w-full">
+		<div className="max-w-[200px] w-full">
 			{solusiText ? (
 				<div className="flex flex-col items-start gap-2">
 					<button
@@ -1439,11 +1439,11 @@ function UnitSelector({
 	}, [currentUnits, selectedUnits]);
 
 	return (
-		<div className="max-w-sm w-full">
+		<div className="max-w-[120px] w-full">
 			{/* Display selected units as chips */}
 			{currentUnits.length > 0 && (
 				<div className="flex flex-wrap gap-1 mb-2">
-					{currentUnits.map((unit) => (
+					{currentUnits.slice(0, 2).map((unit) => (
 						<Badge
 							key={unit.unit_id}
 							variant="secondary"
@@ -1502,9 +1502,9 @@ function UnitSelector({
 						<SelectTrigger className="h-8 w-full">
 							<div className="flex items-center gap-1">
 								<UserIcon className="size-3 text-muted-foreground" />
-								<span className="text-sm">
-									{selectedUnits.length > 0
-										? `${selectedUnits.length} unit dipilih`
+								<span className="text-xs">
+									{selectedUnits.length > 2
+										? `+${selectedUnits.length - 2} unit lainnya`
 										: "Pilih unit"}
 								</span>
 							</div>
@@ -1602,10 +1602,10 @@ function UnitSelector({
 					className="h-8 w-full border-transparent bg-transparent hover:bg-muted/30 focus:border focus:bg-background rounded px-2 flex items-center gap-1 transition-colors"
 					disabled={updating}
 				>
-					<UserIcon className="size-3 text-muted-foreground" />
-					<span className="text-sm">
-						{currentUnits.length > 0
-							? `${currentUnits.length} unit dipilih`
+					{/* <UserIcon className="size-3 text-muted-foreground" /> */}
+					<span className="text-xs">
+						{currentUnits.length > 2
+							? `+${currentUnits.length - 2 } unit lainnya`
 							: "Pilih unit"}
 					</span>
 				</button>
@@ -1689,6 +1689,7 @@ const columns: ColumnDef<KonsultasiData>[] = [
 	{
 		accessorKey: "nama_lengkap",
 		header: "Nama & Instansi",
+		size: 280, // Fixed width for the column
 		cell: ({ row }) => {
 			return <TableCellViewer item={row.original} />;
 		},
@@ -1697,8 +1698,9 @@ const columns: ColumnDef<KonsultasiData>[] = [
 	{
 		accessorKey: "topics",
 		header: "Topik",
+		size: 200, // Set fixed width for topics column
 		cell: ({ row }) => (
-			<div className="max-w-sm">
+			<div className="max-w-[180px]">
 				{row.original.topics && row.original.topics.length > 0 ? (
 					<div className="space-y-1">
 						{row.original.topics.slice(0, 2).map((topic, index) => (
@@ -1779,13 +1781,14 @@ const columns: ColumnDef<KonsultasiData>[] = [
 	{
 		accessorKey: "solusi",
 		header: "Solusi",
+		size: 320, // Set smaller fixed width for solusi column
 		cell: ({ row }) => {
 			const [isExpanded, setIsExpanded] = React.useState(false);
 			const solusiText = row.original.solusi;
 			const shouldTruncate = solusiText && solusiText.length > 100;
 
 			return (
-				<div className="max-w-sm w-full">
+				<div className="max-w-[320px] w-full">
 					{solusiText ? (
 						<div className="flex flex-col items-start gap-2">
 							<button
@@ -1818,6 +1821,7 @@ const columns: ColumnDef<KonsultasiData>[] = [
 	{
 		accessorKey: "units",
 		header: "Unit",
+		
 		cell: ({ row }) => (
 			<div className="max-w-sm">
 				{row.original.units && row.original.units.length > 0 ? (
@@ -1932,6 +1936,7 @@ const createColumns = (
 	{
 		accessorKey: "solusi",
 		header: "Solusi",
+		size: 200, // Set smaller fixed width for solusi column
 		cell: ({ row }) => (
 			<SolusiEditor
 				konsultasiId={row.original.id}
@@ -2318,6 +2323,8 @@ export function DataTableAdminKonsultasi({
 		manualPagination: true,
 		manualFiltering: true,
 		manualSorting: true,
+		columnResizeMode: "onChange",
+		enableColumnResizing: false, // Disable manual resizing, use fixed sizes
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -2475,6 +2482,11 @@ export function DataTableAdminKonsultasi({
 															<TableHead
 																key={header.id}
 																colSpan={header.colSpan}
+																style={{
+																	width: header.getSize() !== 150 ? header.getSize() : undefined,
+																	minWidth: header.getSize() !== 150 ? header.getSize() : undefined,
+																	maxWidth: header.getSize() !== 150 ? header.getSize() : undefined,
+																}}
 															>
 																{header.isPlaceholder
 																	? null
@@ -2650,6 +2662,148 @@ export function DataTableAdminKonsultasi({
 	);
 }
 
+// Solusi Detail Editor Component for Detail View
+function SolusiDetailEditor({
+	konsultasiId,
+	currentSolusi,
+	onUpdate,
+}: {
+	konsultasiId: number;
+	currentSolusi: string | null;
+	onUpdate: (newSolusi: string | null) => void;
+}) {
+	const [isEditing, setIsEditing] = React.useState(false);
+	const [editValue, setEditValue] = React.useState(currentSolusi || "");
+	const [updating, setUpdating] = React.useState(false);
+
+	const handleSave = async () => {
+		if (editValue === currentSolusi) {
+			setIsEditing(false);
+			return;
+		}
+
+		setUpdating(true);
+		const loadingToast = toast.loading("Menyimpan solusi...");
+
+		try {
+			const response = await fetch("/api/v1/konsultasi", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					id: konsultasiId,
+					solusi: editValue || null,
+				}),
+			});
+
+			if (!response.ok) throw new Error("Failed to update solusi");
+
+			const result = await response.json();
+			if (result.success) {
+				onUpdate(editValue || null);
+				setIsEditing(false);
+
+				toast.dismiss(loadingToast);
+				toast.success("Solusi berhasil disimpan!", {
+					description: `Konsultasi #${konsultasiId} telah diperbarui`,
+					duration: 4000,
+				});
+			} else {
+				throw new Error(result.message || "Update failed");
+			}
+		} catch (error) {
+			console.error("Error updating solusi:", error);
+
+			toast.dismiss(loadingToast);
+			toast.error("Gagal menyimpan solusi", {
+				description:
+					error instanceof Error
+						? error.message
+						: "Terjadi kesalahan saat menyimpan solusi",
+				duration: 4000,
+			});
+		} finally {
+			setUpdating(false);
+		}
+	};
+
+	const handleCancel = () => {
+		setEditValue(currentSolusi || "");
+		setIsEditing(false);
+	};
+
+	if (isEditing) {
+		return (
+			<div className="space-y-4">
+				<div className="flex items-center justify-between ">
+					<h4 className="font-semibold text-sm">Solusi</h4>
+				</div>
+				<div className="space-y-3 p-4">
+					<Textarea
+						value={editValue}
+						onChange={(e) => setEditValue(e.target.value)}
+						placeholder="Masukkan solusi konsultasi..."
+						className="min-h-[150px] text-sm resize-none"
+						disabled={updating}
+					/>
+					<div className="flex items-center gap-2">
+						<Button
+							size="sm"
+							onClick={handleSave}
+							disabled={updating}
+							className="h-8 px-4"
+						>
+							{updating ? (
+								<LoaderIcon className="size-3 animate-spin mr-1" />
+							) : (
+								<CheckIcon className="size-3 mr-1" />
+							)}
+							Simpan
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={handleCancel}
+							disabled={updating}
+							className="h-8 px-4"
+						>
+							<XIcon className="size-3 mr-1" />
+							Batal
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center justify-between">
+				<h4 className="font-semibold text-sm">Solusi</h4>
+				<Button
+					size="sm"
+					variant="ghost"
+					onClick={() => setIsEditing(true)}
+					className="h-8 px-3 text-muted-foreground hover:text-foreground"
+				>
+					<FileTextIcon className="size-3 mr-1" />
+					Edit
+				</Button>
+			</div>
+			{currentSolusi ? (
+				<div className="text-sm text-muted-foreground bg-muted p-3 rounded leading-relaxed whitespace-pre-wrap">
+					{currentSolusi}
+				</div>
+			) : (
+				<div className="text-sm text-muted-foreground bg-muted p-3 rounded italic">
+					Belum ada solusi untuk konsultasi ini.
+				</div>
+			)}
+		</div>
+	);
+}
+
 function TableCellViewer({ item }: { item: KonsultasiData }) {
 	return (
 		<Sheet>
@@ -2658,13 +2812,13 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
 					variant="link"
 					className="w-fit px-0 text-left text-foreground h-auto"
 				>
-					<div className="flex flex-col items-start text-left">
-						<span className="font-medium text-sm">
+					<div className="flex flex-col items-start text-left max-w-[260px]">
+						<span className="font-medium text-sm truncate w-full" title={item.nama_lengkap || "Nama tidak tersedia"}>
 							{item.nama_lengkap || "Nama tidak tersedia"}
 						</span>
-						<div className="flex items-center gap-1 text-xs text-muted-foreground">
+						<div className="flex items-center gap-1 text-xs text-muted-foreground w-full">
 							{/* <BuildingIcon className="size-3" /> */}
-							<span>
+							<span className="truncate" title={item.instansi_organisasi || "Instansi tidak tersedia"}>
 								{item.instansi_organisasi || "Instansi tidak tersedia"}
 							</span>
 						</div>
@@ -2773,6 +2927,16 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
 							</div>
 						</div>
 					)}
+
+					{/* Solusi Section */}
+					<SolusiDetailEditor
+						konsultasiId={item.id}
+						currentSolusi={item.solusi}
+						onUpdate={(newSolusi: string | null) => {
+							// Update the item solusi locally for immediate UI feedback
+							item.solusi = newSolusi;
+						}}
+					/>
 
 					{/* Units */}
 					{item.units && item.units.length > 0 && (
