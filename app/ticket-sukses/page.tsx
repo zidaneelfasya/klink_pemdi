@@ -15,9 +15,9 @@ export default function TicketSuksesPage() {
 		}
 	}, [])
 
-	return (
-		<div className="min-h-screen flex items-center justify-center bg-black px-4">
-			<Card className="w-full max-w-md shadow-xl bg-blue-900 text-white border border-blue-700">
+			return (
+				<div className="min-h-screen flex items-center justify-center bg-background px-4">
+					<Card className="w-full max-w-md shadow-xl bg-blue-900 text-white border border-blue-700">
 				<CardHeader className="flex flex-col items-center space-y-3">
 					<CheckCircle2 className="h-16 w-16 text-green-400" />
 					<CardTitle className="text-2xl font-bold text-center">

@@ -2,9 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Calendar, Mail, MapPin } from "lucide-react";
+import { Camera, Mail, Briefcase, Building2 } from "lucide-react";
 
-export default function ProfileHeader() {
+type ProfileHeaderProps = {
+  profile: {
+    full_name: string;
+    email: string;
+    jabatan?: string;
+    satuan_kerja?: string;
+    instansi?: string;
+    // Tambahkan field lain jika ingin tampilkan
+  };
+};
+
+export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   return (
     <Card>
       <CardContent className="p-6">
@@ -12,7 +23,7 @@ export default function ProfileHeader() {
           <div className="relative">
             <Avatar className="h-24 w-24">
               <AvatarImage src="https://bundui-images.netlify.app/avatars/08.png" alt="Profile" />
-              <AvatarFallback className="text-2xl">JD</AvatarFallback>
+              <AvatarFallback className="text-2xl">{profile.full_name ? profile.full_name[0] : "U"}</AvatarFallback>
             </Avatar>
             <Button
               size="icon"
@@ -23,23 +34,27 @@ export default function ProfileHeader() {
           </div>
           <div className="flex-1 space-y-2">
             <div className="flex flex-col gap-2 md:flex-row md:items-center">
-              <h1 className="text-2xl font-bold">John Doe</h1>
+              <h1 className="text-2xl font-bold">{profile.full_name || "-"}</h1>
               <Badge variant="secondary">Pro Member</Badge>
             </div>
-            <p className="text-muted-foreground">Senior Product Designer</p>
+            <p className="text-muted-foreground">{profile.jabatan || "-"}</p>
             <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <Mail className="size-4" />
-                john.doe@example.com
+                {profile.email || "-"}
               </div>
-              <div className="flex items-center gap-1">
-                <MapPin className="size-4" />
-                San Francisco, CA
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="size-4" />
-                Joined March 2023
-              </div>
+              {profile.satuan_kerja && (
+                <div className="flex items-center gap-1">
+                  <Briefcase className="size-4" />
+                  {profile.satuan_kerja}
+                </div>
+              )}
+              {profile.instansi && (
+                <div className="flex items-center gap-1">
+                  <Building2 className="size-4" />
+                  {profile.instansi}
+                </div>
+              )}
             </div>
           </div>
           <Button variant="default">Edit Profile</Button>
