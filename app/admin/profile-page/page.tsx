@@ -18,7 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 export default function Page() {
   const [profile, setProfile] = useState({
     full_name: "",
-      phone: "",
+    phone: "",
     nip: "",
     jabatan: "",
     satuan_kerja: "",
@@ -26,6 +26,7 @@ export default function Page() {
     bio: "",
     location: "",
     email: "",
+    role: "",
   });
   const [initialProfile, setInitialProfile] = useState(profile);
   const [loading, setLoading] = useState(false);
@@ -47,7 +48,9 @@ export default function Page() {
             bio: p.bio || "",
             location: p.location || "",
             email: res.data.data.user?.email || "",
+            role: p.role || "",
           });
+          console.log(profile.role)
           setInitialProfile({
             full_name: p.full_name || "",
             phone: p.phone || "",
@@ -58,7 +61,9 @@ export default function Page() {
             bio: p.bio || "",
             location: p.location || "",
             email: res.data.data.user?.email || "",
+            role: p.role || "",
           });
+          console.log(profile.role)
         }
       } catch (err) {
         toast.error("Gagal memuat data profile");
