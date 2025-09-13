@@ -47,14 +47,14 @@ const data = {
 			url: "/admin/users",
 			icon: UsersIcon,
 		},
+		// {
+		// 	title: "Analytics",
+		// 	url: "#",
+		// 	icon: BarChartIcon,
+		// },
 		{
-			title: "Analytics",
-			url: "#",
-			icon: BarChartIcon,
-		},
-		{
-			title: "Projects",
-			url: "#",
+			title: "Context Management",
+			url: "/admin/contexts",
 			icon: FolderIcon,
 		},
 		{

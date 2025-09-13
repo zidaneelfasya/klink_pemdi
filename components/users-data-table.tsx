@@ -112,7 +112,7 @@ export function UsersDataTable() {
   const columns: ColumnDef<User>[] = [
     {
       accessorKey: 'full_name',
-      header: 'Name',
+      header: 'Nama',
       cell: ({ row }) => {
         const user = row.original;
         return (
@@ -144,7 +144,7 @@ export function UsersDataTable() {
     },
     {
       accessorKey: 'jabatan',
-      header: 'Position',
+      header: 'Jabatan',
       cell: ({ row }) => {
         const jabatan = row.getValue('jabatan') as string;
         return jabatan ? (
@@ -156,7 +156,7 @@ export function UsersDataTable() {
     },
     {
       accessorKey: 'satuan_kerja',
-      header: 'Work Unit',
+      header: 'Satuan Kerja',
       cell: ({ row }) => {
         const user = row.original;
         return (
@@ -181,7 +181,7 @@ export function UsersDataTable() {
     },
     {
       accessorKey: 'phone',
-      header: 'Contact',
+      header: 'No. Telp',
       cell: ({ row }) => {
         const phone = row.getValue('phone') as string;
         return phone ? (
@@ -196,7 +196,7 @@ export function UsersDataTable() {
     },
     {
       accessorKey: 'unit_id',
-      header: 'Assigned Unit',
+      header: 'Unit',
       cell: ({ row }) => {
         const unitId = row.getValue('unit_id') as number;
         const unitName = getUnitName(unitId);

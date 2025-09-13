@@ -167,7 +167,7 @@ export function NavUser() {
 										variant={isAdmin ? "default" : "secondary"}
 										className="text-xs"
 									>
-										{isAdmin ? "Super Admin" : "Unit User"}
+										{isAdmin ? "Super Admin" : "Unit Access"}
 									</Badge>
 									{userUnits.length > 0 && (
 										<Badge variant="outline" className="text-xs">
