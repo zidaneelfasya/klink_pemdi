@@ -6,7 +6,7 @@ const RAG_BASE_URL = 'http://localhost:8000';
 export class ContextAPI {
   // Get all PDF files
   static async getPDFFiles(): Promise<PDFFile[]> {
-    const response = await fetch(`${RAG_BASE_URL}/admin/pdfs`);
+    const response = await fetch(`${RAG_BASE_URL}/admin/documents/documents/pdfs`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -18,7 +18,7 @@ export class ContextAPI {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${RAG_BASE_URL}/admin/upload-pdf`, {
+    const response = await fetch(`${RAG_BASE_URL}/admin/documents/documents/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -33,7 +33,7 @@ export class ContextAPI {
 
   // Delete PDF file
   static async deletePDF(pdfId: string): Promise<{ message: string }> {
-    const response = await fetch(`${RAG_BASE_URL}/admin/delete-pdf/${pdfId}`, {
+    const response = await fetch(`${RAG_BASE_URL}/admin/documents/documents/${pdfId}`, {
       method: 'DELETE',
     });
 
@@ -47,7 +47,7 @@ export class ContextAPI {
 
   // Process PDF into vectorstore
   static async processPDF(pdfId: string): Promise<{ message: string }> {
-    const response = await fetch(`${RAG_BASE_URL}/admin/process-pdf`, {
+    const response = await fetch(`${RAG_BASE_URL}/admin/documents/documents/process-pdf`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export class ContextAPI {
 
   // Get vectorstore info
   static async getVectorstoreInfo(): Promise<VectorstoreInfo> {
-    const response = await fetch(`${RAG_BASE_URL}/admin/vectorstore-info`);
+    const response = await fetch(`${RAG_BASE_URL}/admin/documents/documents/vectorstore-info`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
