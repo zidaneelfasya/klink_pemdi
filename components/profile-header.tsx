@@ -4,6 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Mail, Briefcase, Building2 } from "lucide-react";
 
+
+import { useEffect, useState } from "react";
+
+type Unit = {
+  unit_id: number;
+  unit_name?: string | null;
+};
+
 type ProfileHeaderProps = {
   profile: {
     full_name: string;
@@ -11,11 +19,15 @@ type ProfileHeaderProps = {
     jabatan?: string;
     satuan_kerja?: string;
     instansi?: string;
+    role?: string;
     // Tambahkan field lain jika ingin tampilkan
   };
 };
 
+
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
+
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -35,7 +47,13 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           <div className="flex-1 space-y-2">
             <div className="flex flex-col gap-2 md:flex-row md:items-center">
               <h1 className="text-2xl font-bold">{profile.full_name || "-"}</h1>
-              <Badge variant="secondary">Pro Member</Badge>
+              <Badge variant="secondary">
+                {profile.role
+                  ? profile.role === "superadmin"
+                    ? "Super Admin"
+                    : "Unit Access"
+                  : "Unit Access"}
+              </Badge>
             </div>
             <p className="text-muted-foreground">{profile.jabatan || "-"}</p>
             <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">

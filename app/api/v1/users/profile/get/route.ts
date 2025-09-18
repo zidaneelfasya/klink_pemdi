@@ -67,7 +67,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Return combined user and profile data
+    // Tambahkan pengecekan unit_id = 1 (superadmin)
+    let role = profile.role;
+    // Cek unit assignment
+    const { data: userUnits, error: unitsError } = await supabase
+      .from('user_unit_penanggungjawab')
+      .select('unit_id')
+      .eq('user_id', targetUserId);
+    if (!unitsError && userUnits && userUnits.some((u: any) => u.unit_id === 1)) {
+      role = 'superadmin';
+    }
+
+    // Return combined user and profile data, override role jika superadmin
     return NextResponse.json({
       success: true,
       data: {
@@ -78,7 +89,10 @@ export async function GET(request: NextRequest) {
           updated_at: user.updated_at,
           last_sign_in_at: user.last_sign_in_at,
         },
-        profile
+        profile: {
+          ...profile,
+          role: role || null
+        }
       },
       message: 'User and profile data retrieved successfully'
     });
