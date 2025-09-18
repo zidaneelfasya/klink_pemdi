@@ -80,6 +80,30 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/access-denied";
       return NextResponse.redirect(url);
     }
+
+    // Additional check for specific admin routes that require superadmin access
+    const restrictedAdminPaths = ["/admin/users", "/admin/context", "/admin/summary"];
+    const isRestrictedPath = restrictedAdminPaths.some(path => 
+      request.nextUrl.pathname.startsWith(path)
+    );
+
+    if (isRestrictedPath) {
+      // Get user's assigned units to check if they have superadmin access
+      const { data: userUnits } = await supabase
+        .from("user_unit_penanggungjawab")
+        .select("unit_id")
+        .eq("user_id", user.sub);
+
+      // Check if user has superadmin unit (unit_id = 1)
+      const isSuperAdmin = userUnits?.some(unit => unit.unit_id === 1) || false;
+
+      if (!isSuperAdmin) {
+        // User is not superadmin, redirect to no-access page
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin/no-access";
+        return NextResponse.redirect(url);
+      }
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
