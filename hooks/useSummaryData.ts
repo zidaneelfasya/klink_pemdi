@@ -10,6 +10,8 @@ interface SummaryData {
   statusStats: Record<string, number>;
   kategoriStats: Record<string, number>;
   topikStats: Record<string, number>;
+  provinsiStats: Record<string, number>;
+  keywordStats: Record<string, number>;
   monthlyTrend: Array<{
     month: string;
     monthName: string;
@@ -19,6 +21,11 @@ interface SummaryData {
     unit_id: number;
     unit_name: string;
     count: number;
+  }>;
+  topKeywords: Array<{
+    keyword: string;
+    count: number;
+    color: string;
   }>;
   charts: {
     statusDistribution: Array<{
