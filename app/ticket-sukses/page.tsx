@@ -33,7 +33,7 @@ export default function TicketSuksesPage() {
 					<p className="text-gray-200 text-center">
 						Terima kasih telah mengajukan konsultasi.
 						<br />
-						Tim kami akan segera memproses tiket Anda.
+						Tiket Konsultasi akan anda terima juga di Nomor WhatsApp yang telah anda daftarkan dan dipakai untuk melacak status konsultasi.
 					</p>
 					<Link href="/" className="w-full">
 						<Button className="bg-green-600 hover:bg-green-700 text-white w-full">

@@ -108,9 +108,6 @@ export function Header() {
   useEffect(() => {
     // Get initial user
     const getUser = async () => {
-  //     const { data } = await supabase.auth.getClaims();
-
-  // const user = data?.claims;
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       console.log("user:",user);
@@ -201,7 +198,7 @@ export function Header() {
             className="px-4 py-3 border shadow-xl bg-white/90 backdrop-blur-xl border-white/20 rounded-2xl lg:px-8 lg:py-4"
           >
             <div className="flex items-center justify-between">
-              {/* Logo/Brand */}
+              {/* Logo/Brand - Diubah untuk menampilkan 2 logo */}
               <Link
                 href="/"
                 className="flex items-center space-x-3"
@@ -211,15 +208,34 @@ export function Header() {
                   transition={{ duration: 0.2 }}
                   className="flex items-center space-x-3"
                 >
-                  <div className="flex items-center justify-center w-12 h-12 rounded-3xl">
-                    <Image
-                      src="/images/klinik_logo.png"
-                      alt="Klinik Logo"
-                      width={50}
-                      height={50}
-                      className="mr-2"
-                    />
+                  {/* Container untuk kedua logo */}
+                  <div className="flex items-center space-x-2">
+                    {/* Logo pertama */}
+                    <div className="flex items-center justify-center w-12 h-12 rounded-3xl">
+                      <Image
+                        src="/images/klinik_logo.png"
+                        alt="Klinik Logo"
+                        width={50}
+                        height={50}
+                        className="mr-2"
+                      />
+                    </div>
+                    
+                    {/* Garis pemisah */}
+                    <div className="h-8 w-px bg-gray-300"></div>
+                    
+                    {/* Logo kedua */}
+                    <div className="flex items-center justify-center w-12 h-12 rounded-3xl">
+                      <Image
+                        src="/images/komdigi_logo.png" // Ganti dengan path logo kedua
+                        alt="Komdigi Logo"
+                        width={50}
+                        height={50}
+                        className="mr-2"
+                      />
+                    </div>
                   </div>
+                  
                   <div className="hidden lg:block">
                     <div className="text-lg font-extrabold text-[#003867] leading-tight">
                       KLINIK PEMERINTAH DIGITAL

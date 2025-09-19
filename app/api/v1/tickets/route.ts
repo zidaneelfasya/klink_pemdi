@@ -5,6 +5,7 @@ function generateTicketId() {
   return "TICKET-" + Math.random().toString(36).substr(2, 9).toUpperCase()
 }
 
+// 📌 CREATE TICKET
 export async function POST(req: Request) {
   const supabase = await createClient()
   const body = await req.json()
@@ -38,4 +39,43 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ success: true, ticket: ticketId, data })
+}
+
+// 📌 GET TICKET BY ID
+export async function GET(req: Request) {
+  const supabase = await createClient()
+  const { searchParams } = new URL(req.url)
+  const ticketId = searchParams.get("ticket")
+
+  console.log("Mencari tiket:", ticketId)
+
+  if (!ticketId) {
+    return NextResponse.json(
+      { success: false, error: "Ticket ID tidak ditemukan" },
+      { status: 400 }
+    )
+  }
+
+  const { data, error } = await supabase
+    .from("konsultasi_spbe")
+    .select("*")
+    .eq("ticket", ticketId)
+    .maybeSingle() // supaya gak error keras kalau kosong
+
+  if (error) {
+    console.error("Supabase fetch error:", error)
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    )
+  }
+
+  if (!data) {
+    return NextResponse.json(
+      { success: false, error: "Tiket tidak ditemukan" },
+      { status: 404 }
+    )
+  }
+
+  return NextResponse.json({ success: true, data })
 }
