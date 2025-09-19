@@ -9,6 +9,7 @@ interface SummaryData {
   };
   statusStats: Record<string, number>;
   kategoriStats: Record<string, number>;
+  topikStats: Record<string, number>;
   monthlyTrend: Array<{
     month: string;
     monthName: string;
@@ -27,6 +28,12 @@ interface SummaryData {
     }>;
     kategoriDistribution: Array<{
       name: string;
+      value: number;
+      color: string;
+    }>;
+    topikDistribution: Array<{
+      name: string;
+      fullName: string;
       value: number;
       color: string;
     }>;

@@ -86,6 +86,42 @@ export async function GET(request: NextRequest) {
       return acc;
     }, {});
 
+    // 4.5. Statistics by topik (get from join table)
+    let topikStats = {};
+    if (isSuperAdmin) {
+      // Get all topik data for superadmin
+      const { data: topikData } = await supabase
+        .from('konsultasi_topik')
+        .select(`
+          topik_id,
+          topik_konsultasi(nama_topik)
+        `);
+
+      topikStats = topikData?.reduce((acc: Record<string, number>, item: any) => {
+        const topikName = item.topik_konsultasi?.nama_topik || 'Unknown';
+        acc[topikName] = (acc[topikName] || 0) + 1;
+        return acc;
+      }, {}) || {};
+    } else {
+      // Get topik data filtered by user's consultations
+      const konsultasiIds = filteredData.map((item: any) => item.id);
+      if (konsultasiIds.length > 0) {
+        const { data: topikData } = await supabase
+          .from('konsultasi_topik')
+          .select(`
+            topik_id,
+            topik_konsultasi(nama_topik)
+          `)
+          .in('konsultasi_id', konsultasiIds);
+
+        topikStats = topikData?.reduce((acc: Record<string, number>, item: any) => {
+          const topikName = item.topik_konsultasi?.nama_topik || 'Unknown';
+          acc[topikName] = (acc[topikName] || 0) + 1;
+          return acc;
+        }, {}) || {};
+      }
+    }
+
     // Generate complete months array for the last 12 months
     const monthlyTrend = [];
     for (let i = 11; i >= 0; i--) {
@@ -172,6 +208,17 @@ export async function GET(request: NextRequest) {
       color: getKategoriColor(kategori)
     }));
 
+    // Convert topik stats to chart format
+    const topikDistribution = Object.entries(topikStats)
+      .sort(([, a], [, b]) => (b as number) - (a as number))
+      .slice(0, 10) // Top 10 topics
+      .map(([topik, count]) => ({
+        name: topik.length > 30 ? topik.substring(0, 30) + '...' : topik, // Truncate long names
+        fullName: topik,
+        value: count,
+        color: getTopikColor(topik)
+      }));
+
     return NextResponse.json({
       success: true,
       data: {
@@ -182,11 +229,13 @@ export async function GET(request: NextRequest) {
         },
         statusStats,
         kategoriStats,
+        topikStats,
         monthlyTrend,
         unitStats,
         charts: {
           statusDistribution,
-          kategoriDistribution
+          kategoriDistribution,
+          topikDistribution
         }
       }
     });
@@ -226,4 +275,30 @@ function getKategoriColor(kategori: string): string {
     case 'SDM': return '#ec4899'; // pink
     default: return '#6b7280';
   }
+}
+
+function getTopikColor(topik: string): string {
+  // Generate consistent colors for topics based on hash
+  const colors = [
+    '#8b5cf6', // violet
+    '#f59e0b', // amber
+    '#06b6d4', // cyan
+    '#84cc16', // lime
+    '#f97316', // orange
+    '#3b82f6', // blue
+    '#ec4899', // pink
+    '#10b981', // emerald
+    '#6366f1', // indigo
+    '#ef4444'  // red
+  ];
+  
+  // Simple hash function to get consistent color for each topic
+  let hash = 0;
+  for (let i = 0; i < topik.length; i++) {
+    const char = topik.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  return colors[Math.abs(hash) % colors.length];
 }

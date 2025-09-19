@@ -25,6 +25,7 @@ interface SummaryData {
 	};
 	statusStats: Record<string, number>;
 	kategoriStats: Record<string, number>;
+	topikStats: Record<string, number>;
 	monthlyTrend: Array<{
 		month: string;
 		monthName: string;
@@ -43,6 +44,12 @@ interface SummaryData {
 		}>;
 		kategoriDistribution: Array<{
 			name: string;
+			value: number;
+			color: string;
+		}>;
+		topikDistribution: Array<{
+			name: string;
+			fullName: string;
 			value: number;
 			color: string;
 		}>;
@@ -186,7 +193,7 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 	if (loading) {
 		return (
 			<div className="grid gap-4 md:grid-cols-2">
-				{[...Array(2)].map((_, i) => (
+				{[...Array(3)].map((_, i) => (
 					<Card key={i}>
 						<CardHeader>
 							<Skeleton className="h-5 w-[150px]" />
@@ -210,10 +217,10 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 
 	if (!data) return null;
 
-	const { statusStats, kategoriStats, unitStats } = data;
+	const { statusStats, kategoriStats, topikStats, unitStats } = data;
 
 	return (
-		<div className="grid gap-4 md:grid-cols-2">
+		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{/* Status Breakdown */}
 			<Card>
 				<CardHeader>
@@ -267,6 +274,43 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 											style={{ backgroundColor: getKategoriColor(kategori) }}
 										/>
 										<span className="text-sm capitalize">{kategori}</span>
+									</div>
+									<Badge variant="outline">{count}</Badge>
+								</div>
+							))}
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* Topik Breakdown */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-lg">Distribusi Topik</CardTitle>
+					<CardDescription>
+						Top topik konsultasi yang paling sering
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className="space-y-3">
+						{Object.entries(topikStats)
+							.sort(([, a], [, b]) => (b as number) - (a as number))
+							.slice(0, 5) // Show top 5 topics
+							.map(([topik, count]) => (
+								<div
+									key={topik}
+									className="flex items-center justify-between"
+								>
+									<div className="flex items-center gap-2">
+										<div
+											className="w-3 h-3 rounded-full"
+											style={{ backgroundColor: getTopikColor(topik) }}
+										/>
+										<span 
+											className="text-sm" 
+											title={topik}
+										>
+											{topik.length > 50 ? topik.substring(0, 40) + '...' : topik}
+										</span>
 									</div>
 									<Badge variant="outline">{count}</Badge>
 								</div>
@@ -343,4 +387,30 @@ function getKategoriColor(kategori: string): string {
 		default:
 			return "#6b7280";
 	}
+}
+
+function getTopikColor(topik: string): string {
+	// Generate consistent colors for topics based on hash
+	const colors = [
+		'#8b5cf6', // violet
+		'#f59e0b', // amber
+		'#06b6d4', // cyan
+		'#84cc16', // lime
+		'#f97316', // orange
+		'#3b82f6', // blue
+		'#ec4899', // pink
+		'#10b981', // emerald
+		'#6366f1', // indigo
+		'#ef4444'  // red
+	];
+	
+	// Simple hash function to get consistent color for each topic
+	let hash = 0;
+	for (let i = 0; i < topik.length; i++) {
+		const char = topik.charCodeAt(i);
+		hash = ((hash << 5) - hash) + char;
+		hash = hash & hash; // Convert to 32bit integer
+	}
+	
+	return colors[Math.abs(hash) % colors.length];
 }
