@@ -4,6 +4,7 @@ import React from 'react';
 import { UserProvider } from "@/app/context/user-context";
 import { SummaryCards, DetailedStatsCards } from "@/components/summary-cards";
 import { SummaryCharts, MonthlyComparisonChart } from "@/components/summary-charts";
+import { TopikDistributionChart } from "@/components/topik-chart";
 import { useSummaryData } from "@/hooks/useSummaryData";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
@@ -43,6 +44,9 @@ function SummaryPageContent() {
 
       {/* Charts Section */}
       <SummaryCharts data={data} loading={loading} error={error} />
+
+      {/* Topik Distribution Chart */}
+      <TopikDistributionChart data={data} loading={loading} error={error} />
 
       {/* Detailed Stats */}
       <DetailedStatsCards data={data} loading={loading} error={error} />

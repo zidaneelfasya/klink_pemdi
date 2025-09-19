@@ -35,6 +35,12 @@ interface ChartData {
       value: number;
       color: string;
     }>;
+    topikDistribution: Array<{
+      name: string;
+      fullName: string;
+      value: number;
+      color: string;
+    }>;
   };
 }
 
