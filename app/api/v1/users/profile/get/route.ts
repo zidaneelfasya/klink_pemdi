@@ -74,7 +74,10 @@ export async function GET(request: NextRequest) {
       .from('user_unit_penanggungjawab')
       .select('unit_id')
       .eq('user_id', targetUserId);
-    if (!unitsError && userUnits && userUnits.some((u: any) => u.unit_id === 1)) {
+    interface UserUnit {
+      unit_id: number;
+    }
+    if (!unitsError && userUnits && userUnits.some((u: UserUnit) => u.unit_id === 1)) {
       role = 'superadmin';
     }
 
