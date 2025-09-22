@@ -16,6 +16,7 @@ import {
 	CheckCircle2,
 	AlertCircle,
 } from "lucide-react";
+import { IndonesiaMap } from "@/components/indonesia-map";
 
 interface SummaryData {
 	overview: {
@@ -224,8 +225,14 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 
 	if (!data) return null;
 
-	const { statusStats, kategoriStats, topikStats, provinsiStats, unitStats, topKeywords } =
-		data;
+	const {
+		statusStats,
+		kategoriStats,
+		topikStats,
+		provinsiStats,
+		unitStats,
+		topKeywords,
+	} = data;
 
 	return (
 		<>
@@ -243,7 +250,10 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 							{Object.entries(statusStats)
 								.sort(([, a], [, b]) => (b as number) - (a as number))
 								.map(([status, count]) => (
-									<div key={status} className="flex items-center justify-between">
+									<div
+										key={status}
+										className="flex items-center justify-between"
+									>
 										<div className="flex items-center gap-2">
 											<div
 												className="w-3 h-3 rounded-full"
@@ -308,7 +318,10 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 								.sort(([, a], [, b]) => (b as number) - (a as number))
 								.slice(0, 10) // Show top 10 topics
 								.map(([topik, count]) => (
-									<div key={topik} className="flex items-center justify-between">
+									<div
+										key={topik}
+										className="flex items-center justify-between"
+									>
 										<div className="flex items-center gap-2">
 											<div
 												className="w-3 h-3 rounded-full"
@@ -349,8 +362,8 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 												style={{ backgroundColor: item.color }}
 											/>
 											<span className="text-sm capitalize" title={item.keyword}>
-												{item.keyword.length > 25
-													? item.keyword.substring(0, 25) + "..."
+												{item.keyword.length > 40
+													? item.keyword.substring(0, 40) + "..."
 													: item.keyword}
 											</span>
 										</div>
@@ -377,6 +390,21 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 				)}
 			</div>
 
+			{/* Grid untuk Peta Distribusi Provinsi */}
+			<div className="mt-4">
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-lg">Peta Distribusi Provinsi</CardTitle>
+						<CardDescription>
+							Visualisasi sebaran konsultasi berdasarkan provinsi di Indonesia
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<IndonesiaMap provinsiStats={provinsiStats} className="w-full" />
+					</CardContent>
+				</Card>
+			</div>
+
 			{/* Grid untuk Distribusi Provinsi */}
 			<div className="mt-4">
 				<Card>
@@ -392,7 +420,10 @@ export function DetailedStatsCards({ data, loading }: SummaryCardsProps) {
 								.sort(([, a], [, b]) => (b as number) - (a as number))
 								.slice(0, 15) // Show top 15 provinces
 								.map(([provinsi, count]) => (
-									<div key={provinsi} className="flex items-center justify-between">
+									<div
+										key={provinsi}
+										className="flex items-center justify-between"
+									>
 										<div className="flex items-center gap-2">
 											<div
 												className="w-3 h-3 rounded-full"
