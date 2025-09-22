@@ -60,6 +60,16 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import {
 	Sheet,
 	SheetClose,
 	SheetContent,
@@ -1124,6 +1134,247 @@ function DragHandle({ id }: { id: number }) {
 	);
 }
 
+// Uraian Kebutuhan Display Component with Solusi Dialog
+function UraianKebutuhanDisplay({
+	konsultasiId,
+	uraianKebutuhan,
+	currentSolusi,
+	onSolusiUpdate,
+}: {
+	konsultasiId: number;
+	uraianKebutuhan: string | null;
+	currentSolusi: string | null;
+	onSolusiUpdate: (newSolusi: string | null) => void;
+}) {
+	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+	const [editValue, setEditValue] = React.useState(currentSolusi || "");
+	const [updating, setUpdating] = React.useState(false);
+
+	const handleSave = async () => {
+		if (editValue === currentSolusi) {
+			setIsDialogOpen(false);
+			return;
+		}
+
+		setUpdating(true);
+		const loadingToast = toast.loading("Menyimpan solusi...");
+
+		try {
+			const response = await fetch("/api/v1/konsultasi", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					id: konsultasiId,
+					solusi: editValue || null,
+				}),
+			});
+
+			if (!response.ok) throw new Error("Failed to update solusi");
+
+			const result = await response.json();
+			if (result.success) {
+				onSolusiUpdate(editValue || null);
+				setIsDialogOpen(false);
+
+				toast.dismiss(loadingToast);
+				toast.success("Solusi berhasil disimpan!", {
+					description: `Konsultasi #${konsultasiId} telah diperbarui`,
+					duration: 4000,
+				});
+			} else {
+				throw new Error(result.message || "Update failed");
+			}
+		} catch (error) {
+			console.error("Error updating solusi:", error);
+			toast.dismiss(loadingToast);
+			toast.error("Gagal menyimpan solusi", {
+				description:
+					error instanceof Error
+						? error.message
+						: "Terjadi kesalahan saat menyimpan solusi",
+				duration: 4000,
+			});
+		} finally {
+			setUpdating(false);
+		}
+	};
+
+	const handleCancel = () => {
+		setEditValue(currentSolusi || "");
+		setIsDialogOpen(false);
+	};
+
+	const uraianText = uraianKebutuhan;
+	const shouldTruncate = uraianText && uraianText.length > 100;
+	const [isExpanded, setIsExpanded] = React.useState(false);
+
+	return (
+		<div className="max-w-[320px] w-full">
+			{uraianText ? (
+				<div className="flex flex-col items-start gap-2">
+					<button
+						onClick={() => setIsExpanded(!isExpanded)}
+						className="text-left hover:bg-muted/30 rounded px-2 py-1 transition-colors w-full group"
+					>
+						<div
+							className={`text-sm text-muted-foreground leading-relaxed transition-all duration-200 ${
+								isExpanded
+									? "whitespace-pre-wrap break-words"
+									: "line-clamp-3"
+							}`}
+						>
+							{uraianText}
+						</div>
+						{/* {shouldTruncate && !isExpanded && (
+							<div className="text-xs text-blue-600 group-hover:text-blue-800 mt-1 font-medium">
+								Klik untuk lihat selengkapnya
+							</div>
+						)} */}
+					</button>
+					
+					{/* Dialog untuk input solusi - selalu tersedia */}
+					<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+						<DialogTrigger asChild>
+							<Button
+								size="sm"
+								variant="outline"
+								onClick={() => setEditValue(currentSolusi || "")}
+								className="h-7 px-2 mt-1 flex-shrink-0"
+							>
+								<FileTextIcon className="size-3 mr-1" />
+								{currentSolusi ? "Edit Solusi" : "Tambah Solusi"}
+							</Button>
+						</DialogTrigger>
+						<DialogContent className="sm:max-w-2xl">
+							<DialogHeader>
+								<DialogTitle>Input Solusi Konsultasi</DialogTitle>
+								<DialogDescription>
+									Konsultasi #{konsultasiId} - Input solusi berdasarkan uraian kebutuhan konsultasi
+								</DialogDescription>
+							</DialogHeader>
+							<div className="space-y-4">
+								{/* Uraian Kebutuhan Section */}
+								<div className="space-y-2">
+									<Label className="text-sm font-medium">Uraian Kebutuhan Konsultasi:</Label>
+									<div className="text-sm text-muted-foreground bg-muted p-3 rounded-md leading-relaxed whitespace-pre-wrap max-h-32 overflow-y-auto">
+										{uraianKebutuhan}
+									</div>
+								</div>
+
+								{/* Solusi Input Section */}
+								<div className="space-y-2">
+									<Label htmlFor="solusi" className="text-sm font-medium">Solusi:</Label>
+									<Textarea
+										id="solusi"
+										value={editValue}
+										onChange={(e) => setEditValue(e.target.value)}
+										placeholder="Masukkan solusi berdasarkan uraian kebutuhan konsultasi di atas..."
+										className="min-h-[150px] text-sm resize-none"
+										disabled={updating}
+									/>
+								</div>
+							</div>
+							<DialogFooter>
+								<Button
+									variant="outline"
+									onClick={handleCancel}
+									disabled={updating}
+								>
+									Batal
+								</Button>
+								<Button
+									onClick={handleSave}
+									disabled={updating || editValue === currentSolusi}
+								>
+									{updating ? (
+										<LoaderIcon className="size-4 animate-spin mr-2" />
+									) : (
+										<CheckIcon className="size-4 mr-2" />
+									)}
+									Simpan Solusi
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
+				</div>
+			) : (
+				<div className="flex flex-col items-start gap-2">
+					<span className="text-muted-foreground text-sm flex items-center gap-1 mb-2">
+						Belum ada uraian kebutuhan
+					</span>
+					
+					{/* Dialog untuk input solusi - tetap tersedia meski tidak ada uraian */}
+					<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+						<DialogTrigger asChild>
+							<Button
+								size="sm"
+								variant="outline"
+								onClick={() => setEditValue(currentSolusi || "")}
+								className="h-7 px-2 flex-shrink-0"
+							>
+								<FileTextIcon className="size-3 mr-1" />
+								{currentSolusi ? "Edit Solusi" : "Tambah Solusi"}
+							</Button>
+						</DialogTrigger>
+						<DialogContent className="sm:max-w-2xl">
+							<DialogHeader>
+								<DialogTitle>Input Solusi Konsultasi</DialogTitle>
+								<DialogDescription>
+									Konsultasi #{konsultasiId} - Input solusi konsultasi
+								</DialogDescription>
+							</DialogHeader>
+							<div className="space-y-4">
+								{/* Uraian Kebutuhan Section - jika tidak ada */}
+								<div className="space-y-2">
+									<Label className="text-sm font-medium">Uraian Kebutuhan Konsultasi:</Label>
+									<div className="text-sm text-muted-foreground bg-muted p-3 rounded-md italic">
+										Uraian kebutuhan konsultasi belum tersedia
+									</div>
+								</div>
+
+								{/* Solusi Input Section */}
+								<div className="space-y-2">
+									<Label htmlFor="solusi" className="text-sm font-medium">Solusi:</Label>
+									<Textarea
+										id="solusi"
+										value={editValue}
+										onChange={(e) => setEditValue(e.target.value)}
+										placeholder="Masukkan solusi konsultasi..."
+										className="min-h-[150px] text-sm resize-none"
+										disabled={updating}
+									/>
+								</div>
+							</div>
+							<DialogFooter>
+								<Button
+									variant="outline"
+									onClick={handleCancel}
+									disabled={updating}
+								>
+									Batal
+								</Button>
+								<Button
+									onClick={handleSave}
+									disabled={updating || editValue === currentSolusi}
+								>
+									{updating ? (
+										<LoaderIcon className="size-4 animate-spin mr-2" />
+									) : (
+										<CheckIcon className="size-4 mr-2" />
+									)}
+									Simpan Solusi
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
+				</div>
+			)}
+		</div>
+	);
+}
+
 // Solusi Editor Component
 function SolusiEditor({
 	konsultasiId,
@@ -1779,17 +2030,17 @@ const columns: ColumnDef<KonsultasiData>[] = [
 	},
 
 	{
-		accessorKey: "solusi",
-		header: "Solusi",
-		size: 320, // Set smaller fixed width for solusi column
+		accessorKey: "uraian_kebutuhan_konsultasi",
+		header: "Uraian Kebutuhan",
+		size: 240, // Set fixed width for uraian kebutuhan column
 		cell: ({ row }) => {
 			const [isExpanded, setIsExpanded] = React.useState(false);
-			const solusiText = row.original.solusi;
-			const shouldTruncate = solusiText && solusiText.length > 100;
+			const uraianText = row.original.uraian_kebutuhan_konsultasi;
+			const shouldTruncate = uraianText && uraianText.length > 100;
 
 			return (
-				<div className="max-w-[320px] w-full">
-					{solusiText ? (
+				<div className="max-w-[240px] w-full">
+					{uraianText ? (
 						<div className="flex flex-col items-start gap-2">
 							<button
 								onClick={() => setIsExpanded(!isExpanded)}
@@ -1802,16 +2053,18 @@ const columns: ColumnDef<KonsultasiData>[] = [
 											: "line-clamp-3"
 									}`}
 								>
-									{solusiText}
+									{uraianText}
 								</div>
-								{shouldTruncate && (
-									<div className="text-xs text-blue-600 group-hover:text-blue-800 mt-2 font-medium"></div>
+								{shouldTruncate && !isExpanded && (
+									<div className="text-xs text-blue-600 group-hover:text-blue-800 mt-1 font-medium">
+										Klik untuk lihat selengkapnya
+									</div>
 								)}
 							</button>
 						</div>
 					) : (
 						<span className="text-muted-foreground text-sm flex items-center gap-1">
-							Belum ada solusi
+							Belum ada uraian kebutuhan
 						</span>
 					)}
 				</div>
@@ -1934,15 +2187,16 @@ const createColumns = (
 	},
 	...columns.slice(6, 7), // skor_indeks_spbe
 	{
-		accessorKey: "solusi",
-		header: "Solusi",
-		size: 200, // Set smaller fixed width for solusi column
+		accessorKey: "uraian_kebutuhan_konsultasi",
+		header: "Uraian Kebutuhan",
+		size: 240, // Set fixed width for uraian kebutuhan column
 		cell: ({ row }) => (
-			<SolusiEditor
+			<UraianKebutuhanDisplay
 				konsultasiId={row.original.id}
+				uraianKebutuhan={row.original.uraian_kebutuhan_konsultasi}
 				currentSolusi={row.original.solusi}
-				onUpdate={(newSolusi) => {
-					// Update local data state
+				onSolusiUpdate={(newSolusi) => {
+					// Update local data state for solusi
 					setData((prevData) =>
 						prevData.map((item) =>
 							item.id === row.original.id
