@@ -141,7 +141,7 @@ export default function RegisterPage() {
     if (step === 3 && !validateStep(3)) return
     setLoading(true)
     try {
-      const res = await axios.post("/api/tickets", formData)
+      const res = await axios.post("/api/v1/tickets", formData)
       if (res.data && res.data.success) {
         if (typeof window !== "undefined") {
           localStorage.setItem("last_ticket_id", res.data.ticket)
@@ -220,12 +220,13 @@ export default function RegisterPage() {
                 />
               </div>
               {/* <div className="absolute inset-0 bg-black/10"></div> */}
-
-              <div className="relative z-10 h-full flex flex-col items-center justify-center p-8 text-center text-foreground space-y-6 mt-16">
+              <div className="relative z-10 h-full flex flex-col items-center justify-center p-20 text-center text-foreground space-y-6 mt-16">
                 <h1 className="text-primary text-2xl font-bold">Klinik Pemerintah Digital</h1>
                 <p className="text-sm text-primary opacity-90 max-w-md">
-                  Ikuti langkah-langkah mudah berikut untuk mengajukan konsultasi
-                  SPBE/Pemerintah Digital.
+                  Klinik Pemerintah Digital adalah program pendampingan strategis dari Kementerian Komunikasi dan Digital yang ditujukan bagi Pemerintah Daerah untuk mempercepat Transformasi Digital.
+                  {/* Ikuti langkah-langkah mudah berikut untuk mengajukan konsultasi
+                  SPBE/Pemerintah Digital. */}
+
                 </p>
 
                 <div className="space-y-4 mt-8 w-full max-w-xs">
@@ -278,7 +279,7 @@ export default function RegisterPage() {
                           value={formData.skorSpbe}
                           onChange={handleChange}
                           maxLength={4}
-                          className="bg-input border-border text-foreground"
+                          className="bg-input border-border text-foreground placeholder:opacity-50"
                           placeholder="Contoh: 3.00 atau 4.56 (1.00 - 5.00)"
                         />
                       ) : field.name === "telepon" ? (
@@ -289,7 +290,7 @@ export default function RegisterPage() {
                           pattern="[0-9]*"
                           value={formData.telepon}
                           onChange={handleChange}
-                          className="bg-input border-border text-foreground"
+                          className="bg-input border-border text-foreground placeholder:opacity-50"
                           placeholder="Contoh: 08123456789"
                         />
                       ) : (
@@ -297,7 +298,7 @@ export default function RegisterPage() {
                           name={field.name}
                           value={formData[field.name as keyof FormData] as string}
                           onChange={handleChange}
-                          className="bg-input border-border text-foreground"
+                          className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                         />
                       )}
                       {errors[field.name] && (
@@ -324,7 +325,8 @@ export default function RegisterPage() {
 
                   {/* Topik Konsultasi */}
                   <fieldset className="space-y-2">
-                    <Label className="text-foreground">Topik Konsultasi</Label>
+                    <Label className="text-foreground">Topik Konsultasi (bisa pilih lebih dari satu)</Label>
+                    
                     {topicsLoading && <p className="text-muted-foreground text-xs">Memuat topik...</p>}
                     {topicsError && <p className="text-destructive text-xs">{topicsError}</p>}
                     {!topicsLoading && !topicsError && topics.map((item) => (
