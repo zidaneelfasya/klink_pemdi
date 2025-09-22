@@ -190,20 +190,20 @@ export default function RegisterPage() {
               <div className="absolute top-24 left-2 right-2 z-20 flex justify-center items-center space-x-6">
                 <div className="p-2 rounded-lg">
                   <Image
-                    src="/images/komdigi_logo.png"
+                    src="/images/LOGO KOMDIGI-HORIZONTAL.png"
                     alt="Komdigi Logo"
-                    width={200}
-                    height={200}
+                    width={180}
+                    height={180}
                     className="object-contain"
                     style={{ background: 'transparent' }}
                   />
                 </div>
-                <div className="p-2 rounded-lg">
+                <div className="p-2 pt-4 rounded-lg">
                   <Image
-                    src="/images/klinik_hero.png"
+                    src="/images/klinik-baru.png"
                     alt="Klinik Hero Logo"
-                    width={200}
-                    height={200}
+                    width={180}
+                    height={180}
                     className="object-contain"
                     style={{ background: 'transparent' }}
                   />
@@ -212,18 +212,18 @@ export default function RegisterPage() {
               
               <div className="absolute inset-0">
                 <Image
-                  src="/images/form.png"
+                  src="/images/putihbiru.png"
                   alt="Background"
                   fill
                   className="object-cover rounded-2xl"
                   priority
                 />
               </div>
-              <div className="absolute inset-0 bg-black/10"></div>
+              {/* <div className="absolute inset-0 bg-black/10"></div> */}
 
               <div className="relative z-10 h-full flex flex-col items-center justify-center p-8 text-center text-foreground space-y-6 mt-16">
-                <h1 className="text-white text-2xl font-bold">Klinik Pemerintah Digital</h1>
-                <p className="text-sm text-white opacity-90 max-w-md">
+                <h1 className="text-primary text-2xl font-bold">Klinik Pemerintah Digital</h1>
+                <p className="text-sm text-primary opacity-90 max-w-md">
                   Ikuti langkah-langkah mudah berikut untuk mengajukan konsultasi
                   SPBE/Pemerintah Digital.
                 </p>
