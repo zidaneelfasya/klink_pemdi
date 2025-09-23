@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import { toast } from "sonner"
 
@@ -48,6 +49,12 @@ export default function RegisterPage() {
   const [topicsLoading, setTopicsLoading] = useState(false)
   const [topicsError, setTopicsError] = useState<string | null>(null)
 
+  // State for provinces
+  const [provinces, setProvinces] = useState<{ code: string; name: string }[]>([])
+  const [provincesLoading, setProvincesLoading] = useState(false)
+  const [provincesError, setProvincesError] = useState<string | null>(null)
+  const [provinceSearch, setProvinceSearch] = useState("")
+
   useEffect(() => {
     const fetchTopics = async () => {
       setTopicsLoading(true)
@@ -66,6 +73,26 @@ export default function RegisterPage() {
       }
     }
     fetchTopics()
+  }, [])
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      setProvincesLoading(true)
+      setProvincesError(null)
+      try {
+        const res = await axios.get("/api/v1/provinces")
+        if (res.data && Array.isArray(res.data.data)) {
+          setProvinces(res.data.data)
+        } else {
+          setProvincesError("Gagal memuat data provinsi")
+        }
+      } catch {
+        setProvincesError("Gagal memuat data provinsi")
+      } finally {
+        setProvincesLoading(false)
+      }
+    }
+    fetchProvinces()
   }, [])
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -91,6 +118,12 @@ export default function RegisterPage() {
     }
     setFormData((prev) => ({ ...prev, [name]: value }))
     setErrors((prev) => ({ ...prev, [name]: "" }))
+  }
+
+  // province select handler
+  const handleProvinceSelect = (value: string) => {
+    setFormData((prev) => ({ ...prev, provinsi: value }))
+    setErrors((prev) => ({ ...prev, provinsi: "" }))
   }
 
   // checkbox handler
@@ -293,6 +326,41 @@ export default function RegisterPage() {
                           className="bg-input border-border text-foreground placeholder:opacity-50"
                           placeholder="Contoh: 08123456789"
                         />
+                      ) : field.name === "provinsi" ? (
+                        <div className="space-y-1">
+                          <Select
+                            value={formData.provinsi}
+                            onValueChange={handleProvinceSelect}
+                            disabled={provincesLoading}
+                          >
+                            <SelectTrigger className="bg-input border-border text-foreground">
+                              <SelectValue placeholder={provincesLoading ? "Memuat provinsi..." : "Pilih Provinsi"} />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[200px]">
+                              <div className="p-2">
+                                <Input
+                                  placeholder="Cari provinsi..."
+                                  value={provinceSearch}
+                                  onChange={(e) => setProvinceSearch(e.target.value)}
+                                  className="h-8 text-sm"
+                                />
+                              </div>
+                              {provincesError ? (
+                                <div className="p-2 text-xs text-destructive">{provincesError}</div>
+                              ) : (
+                                provinces
+                                  .filter(province => 
+                                    province.name.toLowerCase().includes(provinceSearch.toLowerCase())
+                                  )
+                                  .map((province) => (
+                                    <SelectItem key={province.code} value={province.name}>
+                                      {province.name}
+                                    </SelectItem>
+                                  ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       ) : (
                         <Input
                           name={field.name}
@@ -338,7 +406,7 @@ export default function RegisterPage() {
                             handleCheckbox(item, checked === true)
                           }
                         />
-                        <Label htmlFor="item" className="text-foreground text-sm">
+                        <Label htmlFor={item} className="text-foreground text-sm">
                           {item}
                         </Label>
                       </div>
