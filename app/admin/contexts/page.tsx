@@ -47,7 +47,7 @@ export default function ContextsPage() {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Make sure your RAG API server is running on localhost:8000 for this page to work properly.
+          Make sure your RAG API server is running for this page to work properly.
           After uploading documents, they need to be processed to be available for the chatbot.
         </AlertDescription>
       </Alert>

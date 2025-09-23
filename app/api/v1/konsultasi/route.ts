@@ -132,9 +132,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    // Add timestamps for new data
+    const currentTimestamp = new Date().toISOString();
+    const dataWithTimestamps = {
+      ...body,
+      timestamp: currentTimestamp,
+      created_at: currentTimestamp,
+      updated_at: currentTimestamp
+    };
+    
     const { data, error } = await supabase
       .from('konsultasi_spbe')
-      .insert([body])
+      .insert([dataWithTimestamps])
       .select()
       .single();
 
@@ -174,9 +183,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Add updated timestamp to all updates
+    const dataWithTimestamp = {
+      ...updateData,
+      updated_at: new Date().toISOString()
+    };
+
     const { data, error } = await supabase
       .from('konsultasi_spbe')
-      .update(updateData)
+      .update(dataWithTimestamp)
       .eq('id', id)
       .select()
       .single();
