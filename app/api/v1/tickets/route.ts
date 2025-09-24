@@ -79,7 +79,7 @@ export async function POST(req: Request) {
 
     // Kirim notifikasi WhatsApp setelah berhasil insert data
     try {
-      await sendWhatsAppTicketNotification(body.telepon, ticketId, body.uraianKebutuhan);
+      await sendWhatsAppTicketNotification(body, ticketId);
     } catch (whatsappError) {
       console.error("Error sending WhatsApp notification:", whatsappError);
       // Tidak perlu menggagalkan request jika WhatsApp gagal
@@ -97,13 +97,13 @@ export async function POST(req: Request) {
 }
 
 // Fungsi untuk mengirim notifikasi WhatsApp ticket
-async function sendWhatsAppTicketNotification(phoneNumber: string, ticketId: string, uraianKebutuhan: string) {
+async function sendWhatsAppTicketNotification(body: any, ticketId: string) {
   try {
     // URL WhatsApp API (bisa dikonfigurasi via env)
     const whatsappApiUrl = 'http://localhost:5000';
     
     // Format nomor telepon untuk WhatsApp (hapus karakter non-digit dan tambahkan prefix jika perlu)
-    const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
+    const cleanPhoneNumber = body.telepon.replace(/\D/g, '');
     
     // Jika nomor dimulai dengan 0, ganti dengan 62 (Indonesia)
     const whatsappNumber = cleanPhoneNumber.startsWith('0') 
@@ -124,7 +124,15 @@ async function sendWhatsAppTicketNotification(phoneNumber: string, ticketId: str
       body: JSON.stringify({
         receiver: whatsappNumber,
         ticket: ticketId,
-        uraian_kebutuhan_konsultasi: uraianKebutuhan
+        nama: body.nama,
+        instansi: body.instansi,
+        kota: body.kota,
+        provinsi: body.provinsi,
+        topikKonsultasi: body.topikKonsultasi || [],
+        fokusTujuan: body.fokusTujuan,
+        uraianKebutuhan: body.uraianKebutuhan,
+        konsultasiLanjut: body.konsultasiLanjut,
+        mekanisme: body.mekanisme
       }),
       // Set timeout untuk mencegah hanging
       signal: AbortSignal.timeout(10000) // 10 detik timeout

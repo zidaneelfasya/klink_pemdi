@@ -40,6 +40,11 @@ export default function TicketSuksesPage() {
 							Kembali ke Beranda
 						</Button>
 					</Link>
+					<Link href="/konsultasi-form" className="w-full">
+						<Button className="bg-blue-500 hover:bg-blue-700 text-white w-full">
+							Isi Form Konsultasi Lagi
+						</Button>
+					</Link>
 				</CardContent>
 			</Card>
 		</div>

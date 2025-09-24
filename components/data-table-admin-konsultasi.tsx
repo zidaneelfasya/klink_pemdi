@@ -2274,12 +2274,183 @@ const createColumns = (
 						<span className="sr-only">Open menu</span>
 					</Button>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-32">
-					<DropdownMenuItem>Edit</DropdownMenuItem>
-					<DropdownMenuItem>View Details</DropdownMenuItem>
-					<DropdownMenuItem>Assign PIC</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+				<DropdownMenuContent align="end" className="w-40">
+					<Sheet>
+						<SheetTrigger asChild>
+							<DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+								<FileTextIcon className="size-4 mr-2" />
+								View Details
+							</DropdownMenuItem>
+						</SheetTrigger>
+						<SheetContent side="right" className="flex flex-col w-full sm:max-w-lg">
+							<SheetHeader className="gap-1">
+								<SheetTitle>Detail Konsultasi</SheetTitle>
+								<SheetDescription>Informasi lengkap konsultasi SPBE</SheetDescription>
+							</SheetHeader>
+							<div className="flex flex-1 flex-col gap-6 overflow-y-auto py-4">
+								{/* Basic Info */}
+								<div className="space-y-4">
+									<h4 className="font-semibold text-sm">Informasi Dasar</h4>
+									<div className="grid gap-3">
+										<div>
+											<Label className="text-xs text-muted-foreground">ID</Label>
+											<div className="font-mono text-sm">
+												#{row.original.id.toString().padStart(4, "0")}
+											</div>
+										</div>
+										<div>
+											<Label className="text-xs text-muted-foreground">
+												Nama Lengkap
+											</Label>
+											<div className="text-sm">{row.original.nama_lengkap || "-"}</div>
+										</div>
+										<div>
+											<Label className="text-xs text-muted-foreground">
+												Instansi/Organisasi
+											</Label>
+											<div className="text-sm">{row.original.instansi_organisasi || "-"}</div>
+										</div>
+										<div>
+											<Label className="text-xs text-muted-foreground">
+												Asal Daerah
+											</Label>
+											<div className="text-sm">
+												{row.original.asal_kota_kabupaten && row.original.asal_provinsi
+													? `${row.original.asal_kota_kabupaten}, ${row.original.asal_provinsi}`
+													: "-"}
+											</div>
+										</div>
+									</div>
+								</div>
+
+								{/* Status & Category */}
+								<div className="space-y-4">
+									<h4 className="font-semibold text-sm">Status & Kategori</h4>
+									<div className="grid gap-3">
+										<div>
+											<Label className="text-xs text-muted-foreground">Status</Label>
+											<div className="mt-1">
+												<Badge
+													variant="outline"
+													className={`capitalize ${getStatusColor(row.original.status)}`}
+												>
+													{row.original.status}
+												</Badge>
+											</div>
+										</div>
+										<div>
+											<Label className="text-xs text-muted-foreground">
+												Kategori
+											</Label>
+											<div className="mt-1">
+												<Badge
+													variant="outline"
+													className={`capitalize ${getCategoryColor(row.original.kategori)}`}
+												>
+													{row.original.kategori}
+												</Badge>
+											</div>
+										</div>
+										<div>
+											<Label className="text-xs text-muted-foreground">PIC</Label>
+											<div className="text-sm">
+												{row.original.pic_name || "Belum ditentukan"}
+											</div>
+										</div>
+										{row.original.skor_indeks_spbe && (
+											<div>
+												<Label className="text-xs text-muted-foreground">
+													Skor Indeks SPBE
+												</Label>
+												<div className="text-sm font-medium">
+													{row.original.skor_indeks_spbe}
+												</div>
+											</div>
+										)}
+									</div>
+								</div>
+
+								{/* Consultation Details */}
+								{row.original.uraian_kebutuhan_konsultasi && (
+									<div className="space-y-4">
+										<h4 className="font-semibold text-sm">Uraian Kebutuhan</h4>
+										<div className="text-sm text-muted-foreground bg-muted p-3 rounded">
+											{row.original.uraian_kebutuhan_konsultasi}
+										</div>
+									</div>
+								)}
+
+								{/* Solusi Section */}
+								<SolusiDetailEditor
+									konsultasiId={row.original.id}
+									currentSolusi={row.original.solusi}
+									onUpdate={(newSolusi: string | null) => {
+										// Update the item solusi locally for immediate UI feedback
+										row.original.solusi = newSolusi;
+									}}
+								/>
+
+								{/* Units */}
+								{row.original.units && row.original.units.length > 0 && (
+									<div className="space-y-4">
+										<h4 className="font-semibold text-sm">Unit Penanggung Jawab</h4>
+										<div className="space-y-2">
+											{row.original.units.map((unit, index) => (
+												<div key={index} className="text-sm bg-muted/50 p-2 rounded">
+													<div className="font-medium">{unit.unit_name}</div>
+													{unit.unit_pic_name && (
+														<div className="text-xs text-muted-foreground">
+															PIC: {unit.unit_pic_name}
+														</div>
+													)}
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+
+								{/* Topics */}
+								{row.original.topics && row.original.topics.length > 0 && (
+									<div className="space-y-4">
+										<h4 className="font-semibold text-sm">Topik Konsultasi</h4>
+										<div className="flex flex-wrap gap-2">
+											{row.original.topics.map((topic, index) => (
+												<Badge key={index} variant="default" className="text-xs">
+													{topic.topik_name}
+												</Badge>
+											))}
+										</div>
+									</div>
+								)}
+
+								{/* Timestamps */}
+								<div className="space-y-4">
+									<h4 className="font-semibold text-sm">Riwayat</h4>
+									<div className="grid gap-2">
+										<div className="flex justify-between text-xs">
+											<span className="text-muted-foreground">Dibuat:</span>
+											<span>{new Date(row.original.created_at).toLocaleString("id-ID")}</span>
+										</div>
+										<div className="flex justify-between text-xs">
+											<span className="text-muted-foreground">Diperbarui:</span>
+											<span>{new Date(row.original.updated_at).toLocaleString("id-ID")}</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<SheetFooter className="mt-auto flex gap-2 sm:flex-col sm:space-x-0">
+								<SheetClose asChild>
+									<Button variant="outline" className="w-full">
+										Tutup
+									</Button>
+								</SheetClose>
+							</SheetFooter>
+						</SheetContent>
+					</Sheet>
+
+					{/* <DropdownMenuSeparator /> */}
+					{/* <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem> */}
 				</DropdownMenuContent>
 			</DropdownMenu>
 		),
