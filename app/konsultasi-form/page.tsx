@@ -366,7 +366,7 @@ export default function RegisterPage() {
                           name={field.name}
                           value={formData[field.name as keyof FormData] as string}
                           onChange={handleChange}
-                          className="bg-input border-border text-foreground placeholder:text-muted-foreground"
+                          className="bg-input rounded-sm border-border text-foreground placeholder:text-muted-foreground"
                         />
                       )}
                       {errors[field.name] && (
