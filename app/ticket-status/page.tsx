@@ -29,8 +29,9 @@ export default function TicketStatusPage() {
     }
 
     fetchTicket(ticketCode)
-      .then((data) => {
-        setTicket(data);
+      .then((response) => {
+        setTicket(response.data);
+        console.log("Fetched ticket data:", response);
         setLoading(false);
       })
       .catch((err) => {
@@ -49,7 +50,7 @@ export default function TicketStatusPage() {
     return <div className="flex items-center justify-center min-h-screen">Data tiket tidak ditemukan.</div>;
   }
 
-  const status: TicketStatus = ticket.solusi ? "selesai" : "proses";
+  const status: TicketStatus = ticket.status === "answered" || ticket.status === "closed" ? "selesai" : "proses";
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-white flex flex-col items-center justify-center px-4 py-8">
@@ -67,7 +68,7 @@ export default function TicketStatusPage() {
           <CardContent>
             {/* ✅ Topik tampil */}
             <div className="mb-4 text-sm text-gray-600">
-              Topik: {ticket.topik_konsultasi?.nama_topik || "Tidak diketahui"}
+              Kategori: {ticket.kategori || "Tidak diketahui"}
             </div>
 
             {/* ✅ Pertanyaan tampil */}

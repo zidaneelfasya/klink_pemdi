@@ -125,6 +125,7 @@ import { ImportModal } from "./import-modal";
 
 export const konsultasiSchema = z.object({
 	id: z.number(),
+	ticket: z.string().nullable(),
 	nama_lengkap: z.string().nullable(),
 	instansi_organisasi: z.string().nullable(),
 	asal_kota_kabupaten: z.string().nullable(),
@@ -3269,6 +3270,12 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
 								<Label className="text-xs text-muted-foreground">ID</Label>
 								<div className="font-mono text-sm">
 									#{item.id.toString().padStart(4, "0")}
+								</div>
+							</div>
+							<div>
+								<Label className="text-xs text-muted-foreground">Ticket</Label>
+								<div className="font-mono text-sm">
+									{item.ticket || "-"}
 								</div>
 							</div>
 							<div>
