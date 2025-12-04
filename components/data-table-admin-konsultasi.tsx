@@ -2386,8 +2386,9 @@ const createColumns = (
 									konsultasiId={row.original.id}
 									currentSolusi={row.original.solusi}
 									onUpdate={(newSolusi: string | null) => {
-										// Update the item solusi locally for immediate UI feedback
-										row.original.solusi = newSolusi;
+										// Use callback instead of mutating props
+										// We'll handle the update in the parent component
+										console.log("Solusi updated:", newSolusi);
 									}}
 								/>
 
@@ -2552,6 +2553,35 @@ export function DataTableAdminKonsultasi({
 	// Track if this is the initial load
 	const initialLoadRef = React.useRef(true);
 
+	// Use useMemo for complex expressions
+	const columnFiltersString = React.useMemo(
+		() => JSON.stringify(columnFilters),
+		[columnFilters]
+	);
+
+	const sortingString = React.useMemo(
+		() => JSON.stringify(sorting),
+		[sorting]
+	);
+
+	// Separate function to update URL parameters
+	const updateURLParamsStable = React.useCallback(
+		(params: Record<string, string | number | null>) => {
+			const newSearchParams = new URLSearchParams(searchParams.toString());
+
+			Object.entries(params).forEach(([key, value]) => {
+				if (value !== null && value !== "" && value !== 0) {
+					newSearchParams.set(key, value.toString());
+				} else {
+					newSearchParams.delete(key);
+				}
+			});
+
+			router.push(`?${newSearchParams.toString()}`, { scroll: false });
+		},
+		[router, searchParams]
+	);
+
 	// Fetch data from API with filters and pagination
 	const fetchKonsultasiData = React.useCallback(
 		async (skipURLUpdate = false) => {
@@ -2560,7 +2590,6 @@ export function DataTableAdminKonsultasi({
 				const params = new URLSearchParams();
 
 				// Pagination
-
 				const offset = pagination.pageIndex * pagination.pageSize;
 				if (pagination.pageSize === Number.MAX_SAFE_INTEGER) {
 					// For "all", don't set limit to get all records
@@ -2623,7 +2652,6 @@ export function DataTableAdminKonsultasi({
 				const result = await response.json();
 				if (result.success && result.data) {
 					setData(result.data);
-
 					setTotalCount(result.pagination?.total || 0);
 
 					// Update URL parameters only if not skipped and not initial load
@@ -2662,34 +2690,10 @@ export function DataTableAdminKonsultasi({
 				initialLoadRef.current = false;
 			}
 		},
-		[pagination, sorting, columnFilters, globalFilter, isAdmin, userLoading]
+		[pagination, sorting, columnFilters, globalFilter, isAdmin, userLoading, updateURLParamsStable]
 	);
 
-	useEffect(() => {
-		// Only fetch data when user data has loaded
-		if (!userLoading) {
-			fetchKonsultasiData(true);
-		}
-	}, [userLoading, fetchKonsultasiData]);
-	// Separate function to update URL parameters
-	const updateURLParamsStable = React.useCallback(
-		(params: Record<string, string | number | null>) => {
-			const newSearchParams = new URLSearchParams(searchParams.toString());
-
-			Object.entries(params).forEach(([key, value]) => {
-				if (value !== null && value !== "" && value !== 0) {
-					newSearchParams.set(key, value.toString());
-				} else {
-					newSearchParams.delete(key);
-				}
-			});
-
-			router.push(`?${newSearchParams.toString()}`, { scroll: false });
-		},
-		[router, searchParams]
-	);
-
-	// Load data on initial mount
+	// Initial load effect
 	React.useEffect(() => {
 		// Only fetch on initial mount if we have URL parameters that differ from defaults
 		const hasNonDefaultParams =
@@ -2703,7 +2707,23 @@ export function DataTableAdminKonsultasi({
 		if (hasNonDefaultParams) {
 			fetchKonsultasiData(true);
 		}
-	}, []); // Empty dependency array - only run once on mount
+	}, [
+		currentPage,
+		currentPageSize,
+		currentSearch,
+		currentKategori.length,
+		currentStatus.length,
+		currentUnits.length,
+		fetchKonsultasiData,
+	]);
+
+	// Load data when user data has loaded
+	React.useEffect(() => {
+		// Only fetch data when user data has loaded
+		if (!userLoading) {
+			fetchKonsultasiData(true);
+		}
+	}, [userLoading, fetchKonsultasiData]);
 
 	// Load data when internal state changes (filters, pagination, sorting)
 	React.useEffect(() => {
@@ -2719,8 +2739,9 @@ export function DataTableAdminKonsultasi({
 		pagination.pageIndex,
 		pagination.pageSize,
 		globalFilter,
-		JSON.stringify(columnFilters), // Stringify for deep comparison
-		JSON.stringify(sorting), // Stringify for deep comparison
+		columnFiltersString,
+		sortingString,
+		fetchKonsultasiData,
 	]);
 
 	// Create columns with setData function
@@ -3089,15 +3110,17 @@ export function DataTableAdminKonsultasi({
 }
 
 // Solusi Detail Editor Component for Detail View
+interface SolusiDetailEditorProps {
+	konsultasiId: number;
+	currentSolusi: string | null;
+	onUpdate: (newSolusi: string | null) => void;
+}
+
 function SolusiDetailEditor({
 	konsultasiId,
 	currentSolusi,
 	onUpdate,
-}: {
-	konsultasiId: number;
-	currentSolusi: string | null;
-	onUpdate: (newSolusi: string | null) => void;
-}) {
+}: SolusiDetailEditorProps) {
 	const [isEditing, setIsEditing] = React.useState(false);
 	const [editValue, setEditValue] = React.useState(currentSolusi || "");
 	const [updating, setUpdating] = React.useState(false);
@@ -3230,7 +3253,18 @@ function SolusiDetailEditor({
 	);
 }
 
-function TableCellViewer({ item }: { item: KonsultasiData }) {
+interface TableCellViewerProps {
+	item: KonsultasiData;
+	onSolusiUpdate?: (konsultasiId: number, newSolusi: string | null) => void;
+}
+
+function TableCellViewer({ item, onSolusiUpdate }: TableCellViewerProps) {
+	const handleSolusiUpdate = React.useCallback((newSolusi: string | null) => {
+		if (onSolusiUpdate) {
+			onSolusiUpdate(item.id, newSolusi);
+		}
+	}, [item.id, onSolusiUpdate]);
+
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
@@ -3243,7 +3277,6 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
 							{item.nama_lengkap || "Nama tidak tersedia"}
 						</span>
 						<div className="flex items-center gap-1 text-xs text-muted-foreground w-full">
-							{/* <BuildingIcon className="size-3" /> */}
 							<span className="truncate" title={item.instansi_organisasi || "Instansi tidak tersedia"}>
 								{item.instansi_organisasi || "Instansi tidak tersedia"}
 							</span>
@@ -3364,10 +3397,7 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
 					<SolusiDetailEditor
 						konsultasiId={item.id}
 						currentSolusi={item.solusi}
-						onUpdate={(newSolusi: string | null) => {
-							// Update the item solusi locally for immediate UI feedback
-							item.solusi = newSolusi;
-						}}
+						onUpdate={handleSolusiUpdate}
 					/>
 
 					{/* Units */}
@@ -3420,7 +3450,6 @@ function TableCellViewer({ item }: { item: KonsultasiData }) {
 				</div>
 
 				<SheetFooter className="mt-auto flex gap-2 sm:flex-col sm:space-x-0">
-					{/* <Button className="w-full">Edit Konsultasi</Button> */}
 					<SheetClose asChild>
 						<Button variant="outline" className="w-full">
 							Tutup

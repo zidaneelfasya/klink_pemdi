@@ -78,15 +78,22 @@ export default function AccessDeniedPage() {
 
 				{/* Floating particles effect */}
 				<div className="absolute inset-0 pointer-events-none z-30">
-					{[...Array(6)].map((_, i) => (
+					{[
+						{ left: 15, top: 25, duration: 4.2 },
+						{ left: 85, top: 15, duration: 3.8 },
+						{ left: 25, top: 75, duration: 4.8 },
+						{ left: 75, top: 65, duration: 3.5 },
+						{ left: 45, top: 35, duration: 4.5 },
+						{ left: 65, top: 85, duration: 4.0 },
+					].map((particle, i) => (
 						<div
 							key={i}
 							className={`absolute w-2 h-2 bg-primary/20 rounded-full animate-float`}
 							style={{
-								left: `${Math.random() * 100}%`,
-								top: `${Math.random() * 100}%`,
+								left: `${particle.left}%`,
+								top: `${particle.top}%`,
 								animationDelay: `${i * 0.5}s`,
-								animationDuration: `${3 + Math.random() * 2}s`,
+								animationDuration: `${particle.duration}s`,
 							}}
 						/>
 					))}

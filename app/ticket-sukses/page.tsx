@@ -7,13 +7,12 @@ import { useEffect, useState } from "react"
 import { CheckCircle2 } from "lucide-react"
 
 export default function TicketSuksesPage() {
-	const [ticketId, setTicketId] = useState<string | null>(null)
-
-	useEffect(() => {
+	const [ticketId, setTicketId] = useState<string | null>(() => {
 		if (typeof window !== "undefined") {
-			setTicketId(localStorage.getItem("last_ticket_id"))
+			return localStorage.getItem("last_ticket_id")
 		}
-	}, [])
+		return null
+	})
 
 			return (
 				<div className="min-h-screen flex items-center justify-center bg-background px-4">

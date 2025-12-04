@@ -123,11 +123,17 @@ function MapBounds({ markers }: { markers: Array<{ position: [number, number] }>
 }
 
 export function IndonesiaMap({ provinsiStats, className = "" }: IndonesiaMapProps) {
-  const [isClient, setIsClient] = React.useState(false);
+  const [isClient, setIsClient] = React.useState(() => {
+    // Initialize with client-side check
+    return typeof window !== 'undefined';
+  });
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  // Only set to true if we're still on server and component has mounted
+  React.useEffect(() => {
+    if (!isClient) {
+      setIsClient(true);
+    }
+  }, [isClient]);
 
   if (!isClient) {
     return (

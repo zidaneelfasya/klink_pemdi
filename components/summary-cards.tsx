@@ -1,4 +1,5 @@
 import React from "react";
+import dynamic from "next/dynamic";
 import {
 	Card,
 	CardContent,
@@ -16,7 +17,16 @@ import {
 	CheckCircle2,
 	AlertCircle,
 } from "lucide-react";
-import { IndonesiaMap } from "@/components/indonesia-map";
+
+// Dynamically import IndonesiaMap with SSR disabled
+const IndonesiaMap = dynamic(() => import("@/components/indonesia-map").then(mod => ({ default: mod.IndonesiaMap })), {
+	ssr: false,
+	loading: () => (
+		<div className="w-full h-[400px] flex items-center justify-center">
+			<Skeleton className="w-full h-full" />
+		</div>
+	)
+});
 
 interface SummaryData {
 	overview: {

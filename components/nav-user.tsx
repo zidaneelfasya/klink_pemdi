@@ -60,7 +60,7 @@ export function NavUser() {
 			}
 		};
 		getUserInfo();
-	}, []);
+	}, [supabase.auth]);
 
 	const handleSignOut = async () => {
 		await supabase.auth.signOut();
