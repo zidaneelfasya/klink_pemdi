@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
 
 export function Header() {
@@ -35,6 +36,9 @@ export function Header() {
           <a href="#spbe" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             SPBE
           </a>
+          <a href="/ticket" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            Cek Status Ticket
+          </a>
         </nav>
 
         {/* CTA Buttons */}
@@ -42,7 +46,9 @@ export function Header() {
           <Button variant="outline" className="hidden md:inline-flex text-sm bg-transparent">
             Masuk sebagai Admin
           </Button>
+          <Link href="/konsultasi-form">
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm">Mulai Konsultasi</Button>
+          </Link>
           <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             <Menu className="w-6 h-6" />
           </button>
@@ -65,9 +71,16 @@ export function Header() {
             <a href="#spbe" className="text-sm font-medium text-foreground hover:text-primary">
               SPBE
             </a>
+            <Link href="/ticket">
+            <a className="text-sm font-medium text-foreground hover:text-primary">
+              Cek Status Ticket
+            </a>
+            </Link>
+            <Link href="/admin">
             <Button variant="outline" className="w-full text-sm bg-transparent">
               Masuk sebagai Admin
             </Button>
+            </Link>
           </nav>
         </div>
       )}
