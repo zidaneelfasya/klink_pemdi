@@ -38,8 +38,8 @@ import Link from "next/link";
 const data = {
 	navMain: [
 		{
-			title: "Dashboard",
-			url: "/admin",
+			title: "Konsultasi SPBE",
+			url: "/admin/konsultasi",
 			icon: LayoutDashboardIcon,
 		},
 		{
@@ -58,9 +58,9 @@ const data = {
 			icon: FolderIcon,
 		},
 		{
-			title: "Team",
-			url: "#",
-			icon: UsersIcon,
+			title: "Summary",
+			url: "/admin/summary",
+			icon: ClipboardListIcon,
 		},
 	],
 	navClouds: [
@@ -168,8 +168,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={data.navMain} />
-				<NavDocuments items={data.documents} />
-				<NavSecondary items={data.navSecondary} className="mt-auto" />
+				{/* <NavDocuments items={data.documents} /> */}
+				{/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />

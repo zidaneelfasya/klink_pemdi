@@ -25,7 +25,7 @@ export function ContextUpload({ onUpload, uploading }: ContextUploadProps) {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+    if (file.size > 100 * 1024 * 1024) { // 50MB limit
       toast.error('File size must be less than 50MB');
       return;
     }
@@ -157,7 +157,7 @@ export function ContextUpload({ onUpload, uploading }: ContextUploadProps) {
 
         <div className="text-xs text-muted-foreground">
           <p>• Only PDF files are supported</p>
-          <p>• Maximum file size: 50MB</p>
+          <p>• Maximum file size: 100MB</p>
           <p>• Files will be processed automatically after upload</p>
         </div>
       </CardContent>
