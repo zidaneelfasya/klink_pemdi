@@ -36,7 +36,7 @@ export function Hero() {
 						</div>
 
 						<div className="flex flex-col sm:flex-row gap-4 pt-4">
-							<Link href={"/konsultasi-form"}>
+							<Link href="/konsultasi-form">
 								<Button className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-12 text-base">
 									Mulai Konsultasi
 									<ArrowRight className="w-4 h-4" />
