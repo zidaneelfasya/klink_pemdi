@@ -60,11 +60,11 @@ export function NavUser() {
 			}
 		};
 		getUserInfo();
-	}, []);
+	}, [supabase.auth]);
 
 	const handleSignOut = async () => {
 		await supabase.auth.signOut();
-		router.push("/login");
+		router.push("/auth/login");
 	};
 
 	if (loading) {

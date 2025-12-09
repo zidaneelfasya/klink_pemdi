@@ -7,13 +7,12 @@ import { useEffect, useState } from "react"
 import { CheckCircle2 } from "lucide-react"
 
 export default function TicketSuksesPage() {
-	const [ticketId, setTicketId] = useState<string | null>(null)
-
-	useEffect(() => {
+	const [ticketId, setTicketId] = useState<string | null>(() => {
 		if (typeof window !== "undefined") {
-			setTicketId(localStorage.getItem("last_ticket_id"))
+			return localStorage.getItem("last_ticket_id")
 		}
-	}, [])
+		return null
+	})
 
 			return (
 				<div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -38,6 +37,11 @@ export default function TicketSuksesPage() {
 					<Link href="/" className="w-full">
 						<Button className="bg-green-600 hover:bg-green-700 text-white w-full">
 							Kembali ke Beranda
+						</Button>
+					</Link>
+					<Link href="/konsultasi-form" className="w-full">
+						<Button className="bg-blue-500 hover:bg-blue-700 text-white w-full">
+							Isi Form Konsultasi Lagi
 						</Button>
 					</Link>
 				</CardContent>

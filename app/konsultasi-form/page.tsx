@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import { toast } from "sonner"
 
@@ -48,6 +49,12 @@ export default function RegisterPage() {
   const [topicsLoading, setTopicsLoading] = useState(false)
   const [topicsError, setTopicsError] = useState<string | null>(null)
 
+  // State for provinces
+  const [provinces, setProvinces] = useState<{ code: string; name: string }[]>([])
+  const [provincesLoading, setProvincesLoading] = useState(false)
+  const [provincesError, setProvincesError] = useState<string | null>(null)
+  const [provinceSearch, setProvinceSearch] = useState("")
+
   useEffect(() => {
     const fetchTopics = async () => {
       setTopicsLoading(true)
@@ -66,6 +73,26 @@ export default function RegisterPage() {
       }
     }
     fetchTopics()
+  }, [])
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      setProvincesLoading(true)
+      setProvincesError(null)
+      try {
+        const res = await axios.get("/api/v1/provinces")
+        if (res.data && Array.isArray(res.data.data)) {
+          setProvinces(res.data.data)
+        } else {
+          setProvincesError("Gagal memuat data provinsi")
+        }
+      } catch {
+        setProvincesError("Gagal memuat data provinsi")
+      } finally {
+        setProvincesLoading(false)
+      }
+    }
+    fetchProvinces()
   }, [])
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -91,6 +118,12 @@ export default function RegisterPage() {
     }
     setFormData((prev) => ({ ...prev, [name]: value }))
     setErrors((prev) => ({ ...prev, [name]: "" }))
+  }
+
+  // province select handler
+  const handleProvinceSelect = (value: string) => {
+    setFormData((prev) => ({ ...prev, provinsi: value }))
+    setErrors((prev) => ({ ...prev, provinsi: "" }))
   }
 
   // checkbox handler
@@ -141,7 +174,7 @@ export default function RegisterPage() {
     if (step === 3 && !validateStep(3)) return
     setLoading(true)
     try {
-      const res = await axios.post("/api/tickets", formData)
+      const res = await axios.post("/api/v1/tickets", formData)
       if (res.data && res.data.success) {
         if (typeof window !== "undefined") {
           localStorage.setItem("last_ticket_id", res.data.ticket)
@@ -220,12 +253,13 @@ export default function RegisterPage() {
                 />
               </div>
               {/* <div className="absolute inset-0 bg-black/10"></div> */}
-
-              <div className="relative z-10 h-full flex flex-col items-center justify-center p-8 text-center text-foreground space-y-6 mt-16">
+              <div className="relative z-10 h-full flex flex-col items-center justify-center p-20 text-center text-foreground space-y-6 mt-16">
                 <h1 className="text-primary text-2xl font-bold">Klinik Pemerintah Digital</h1>
                 <p className="text-sm text-primary opacity-90 max-w-md">
-                  Ikuti langkah-langkah mudah berikut untuk mengajukan konsultasi
-                  SPBE/Pemerintah Digital.
+                  Klinik Pemerintah Digital adalah program pendampingan strategis dari Kementerian Komunikasi dan Digital yang ditujukan bagi Pemerintah Daerah untuk mempercepat Transformasi Digital.
+                  {/* Ikuti langkah-langkah mudah berikut untuk mengajukan konsultasi
+                  SPBE/Pemerintah Digital. */}
+
                 </p>
 
                 <div className="space-y-4 mt-8 w-full max-w-xs">
@@ -278,7 +312,7 @@ export default function RegisterPage() {
                           value={formData.skorSpbe}
                           onChange={handleChange}
                           maxLength={4}
-                          className="bg-input border-border text-foreground"
+                          className="bg-input border-border text-foreground placeholder:opacity-50"
                           placeholder="Contoh: 3.00 atau 4.56 (1.00 - 5.00)"
                         />
                       ) : field.name === "telepon" ? (
@@ -289,15 +323,50 @@ export default function RegisterPage() {
                           pattern="[0-9]*"
                           value={formData.telepon}
                           onChange={handleChange}
-                          className="bg-input border-border text-foreground"
+                          className="bg-input border-border text-foreground placeholder:opacity-50"
                           placeholder="Contoh: 08123456789"
                         />
+                      ) : field.name === "provinsi" ? (
+                        <div className="space-y-1">
+                          <Select
+                            value={formData.provinsi}
+                            onValueChange={handleProvinceSelect}
+                            disabled={provincesLoading}
+                          >
+                            <SelectTrigger className="bg-input border-border text-foreground">
+                              <SelectValue placeholder={provincesLoading ? "Memuat provinsi..." : "Pilih Provinsi"} />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[200px]">
+                              <div className="p-2">
+                                <Input
+                                  placeholder="Cari provinsi..."
+                                  value={provinceSearch}
+                                  onChange={(e) => setProvinceSearch(e.target.value)}
+                                  className="h-8 text-sm"
+                                />
+                              </div>
+                              {provincesError ? (
+                                <div className="p-2 text-xs text-destructive">{provincesError}</div>
+                              ) : (
+                                provinces
+                                  .filter(province => 
+                                    province.name.toLowerCase().includes(provinceSearch.toLowerCase())
+                                  )
+                                  .map((province) => (
+                                    <SelectItem key={province.code} value={province.name}>
+                                      {province.name}
+                                    </SelectItem>
+                                  ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       ) : (
                         <Input
                           name={field.name}
                           value={formData[field.name as keyof FormData] as string}
                           onChange={handleChange}
-                          className="bg-input border-border text-foreground"
+                          className="bg-input rounded-sm border-border text-foreground placeholder:text-muted-foreground"
                         />
                       )}
                       {errors[field.name] && (
@@ -324,7 +393,8 @@ export default function RegisterPage() {
 
                   {/* Topik Konsultasi */}
                   <fieldset className="space-y-2">
-                    <Label className="text-foreground">Topik Konsultasi</Label>
+                    <Label className="text-foreground">Topik Konsultasi (bisa pilih lebih dari satu)</Label>
+                    
                     {topicsLoading && <p className="text-muted-foreground text-xs">Memuat topik...</p>}
                     {topicsError && <p className="text-destructive text-xs">{topicsError}</p>}
                     {!topicsLoading && !topicsError && topics.map((item) => (
@@ -336,7 +406,7 @@ export default function RegisterPage() {
                             handleCheckbox(item, checked === true)
                           }
                         />
-                        <Label htmlFor="item" className="text-foreground text-sm">
+                        <Label htmlFor={item} className="text-foreground text-sm">
                           {item}
                         </Label>
                       </div>

@@ -67,17 +67,17 @@ export function UsersDataTable() {
   const [units, setUnits] = useState<Unit[]>([]);
 
   useEffect(() => {
+    const loadUnits = async () => {
+      try {
+        const unitsData = await getUnits();
+        setUnits(unitsData);
+      } catch (error) {
+        console.error('Error loading units:', error);
+      }
+    };
+
     loadUnits();
   }, []);
-
-  const loadUnits = async () => {
-    try {
-      const unitsData = await getUnits();
-      setUnits(unitsData);
-    } catch (error) {
-      console.error('Error loading units:', error);
-    }
-  };
 
   const getUnitName = (unitId: number | null | undefined) => {
     if (!unitId) return null;

@@ -110,15 +110,16 @@ export default function ChatHeader() {
         console.log("ChatHeader: Auth state changed:", event);
         
         try {
-          setUser(session?.user ?? null);
+          const currentUser = session?.user ?? null;
+          setUser(currentUser);
           
-          if (user) {
+          if (currentUser) {
             // Fetch user profile data
-            console.log("ChatHeader: Fetching profile on auth change for user:", user.id);
+            console.log("ChatHeader: Fetching profile on auth change for user:", currentUser.id);
             const { data: profile, error: profileError } = await supabase
               .from("profiles")
               .select("full_name, role")
-              .eq("id", user.id)
+              .eq("id", currentUser.id)
               .single();
               
             if (profileError) {

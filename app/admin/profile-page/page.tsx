@@ -38,7 +38,7 @@ export default function Page() {
         const res = await axios.get("/api/v1/users/profile/get");
         if (res.data && res.data.success) {
           const p = res.data.data.profile || {};
-          setProfile({
+          const newProfile = {
             full_name: p.full_name || "",
             phone: p.phone || "",
             nip: p.nip || "",
@@ -49,21 +49,9 @@ export default function Page() {
             location: p.location || "",
             email: res.data.data.user?.email || "",
             role: p.role || "",
-          });
-          console.log(profile.role)
-          setInitialProfile({
-            full_name: p.full_name || "",
-            phone: p.phone || "",
-            nip: p.nip || "",
-            jabatan: p.jabatan || "",
-            satuan_kerja: p.satuan_kerja || "",
-            instansi: p.instansi || "",
-            bio: p.bio || "",
-            location: p.location || "",
-            email: res.data.data.user?.email || "",
-            role: p.role || "",
-          });
-          console.log(profile.role)
+          };
+          setProfile(newProfile);
+          setInitialProfile(newProfile);
         }
       } catch (err) {
         toast.error("Gagal memuat data profile");

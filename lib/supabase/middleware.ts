@@ -56,7 +56,11 @@ export async function updateSession(request: NextRequest) {
     
     && !request.nextUrl.pathname.startsWith("/api")
     && !request.nextUrl.pathname.includes("/konsultasi-form")
-    && !request.nextUrl.pathname.includes("/konsultasi-form")
+  && !request.nextUrl.pathname.includes("/ticket")
+    && !request.nextUrl.pathname.includes("/ticket-cek")
+    && !request.nextUrl.pathname.includes("/ticket-sukses")
+    && !request.nextUrl.pathname.includes("/ticket-status")
+
 
   ) {
     // no user, potentially respond by redirecting the user to the login page

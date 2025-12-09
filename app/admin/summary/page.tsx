@@ -1,14 +1,39 @@
 "use client";
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { UserProvider } from "@/app/context/user-context";
-import { SummaryCards, DetailedStatsCards } from "@/components/summary-cards";
-import { SummaryCharts, MonthlyComparisonChart } from "@/components/summary-charts";
-import { TopikDistributionChart } from "@/components/topik-chart";
 import { useSummaryData } from "@/hooks/useSummaryData";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Dynamically import components that might have SSR issues
+const SummaryCards = dynamic(() => import("@/components/summary-cards").then(mod => ({ default: mod.SummaryCards })), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[200px] w-full" />
+});
+
+const DetailedStatsCards = dynamic(() => import("@/components/summary-cards").then(mod => ({ default: mod.DetailedStatsCards })), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[200px] w-full" />
+});
+
+const SummaryCharts = dynamic(() => import("@/components/summary-charts").then(mod => ({ default: mod.SummaryCharts })), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[400px] w-full" />
+});
+
+const MonthlyComparisonChart = dynamic(() => import("@/components/summary-charts").then(mod => ({ default: mod.MonthlyComparisonChart })), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[400px] w-full" />
+});
+
+const TopikDistributionChart = dynamic(() => import("@/components/topik-chart").then(mod => ({ default: mod.TopikDistributionChart })), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[400px] w-full" />
+});
 
 function SummaryPageContent() {
   const { data, loading, error, refreshData } = useSummaryData();
